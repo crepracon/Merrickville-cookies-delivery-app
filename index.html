@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cookie Shop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3EAD9; --surface:#FFFDF8; --surface2:#FAF3E6;
+  --ink:#33241A; --muted:#8C7A6B; --line:#E3D5BF;
+  --gold:#B5722A; --gold-deep:#8A4F1D; --gold-soft:#F1DFC4;
+  --green:#3E7A4E; --green-soft:#E2EEE4;
+  --red:#B03A2E; --red-soft:#F5E0DD;
+  --blue:#3D6A8A; --blue-soft:#DFEAF2;
+  --radius:14px; --shadow:0 1px 3px rgba(51,36,26,.10), 0 4px 14px rgba(51,36,26,.06);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:'Outfit',system-ui,sans-serif; font-size:15px; line-height:1.45;
+  padding-bottom:calc(76px + env(safe-area-inset-bottom));
+}
+h1,h2,h3,.display{font-family:'Fraunces',serif}
+button{font-family:inherit; font-size:inherit; cursor:pointer}
+input,select,textarea{
+  font-family:inherit; font-size:15px; color:var(--ink);
+  background:var(--surface); border:1px solid var(--line); border-radius:10px;
+  padding:9px 11px; width:100%;
+}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{
+  outline:2px solid var(--gold); outline-offset:1px;
+}
+label{font-size:12.5px; font-weight:600; color:var(--muted); display:block; margin:10px 0 4px; text-transform:uppercase; letter-spacing:.04em}
+@media (prefers-reduced-motion: reduce){ *{animation:none!important; transition:none!important} }
+
+/* ---------- header ---------- */
+header{
+  background:var(--ink); color:#F6EDDD; padding:12px 16px 10px;
+  display:flex; align-items:center; gap:10px;
+  position:sticky; top:0; z-index:40;
+}
+header .brand{font-family:'Fraunces',serif; font-weight:700; font-size:20px; letter-spacing:.01em}
+header .spacer{flex:1}
+.sync-chip{
+  display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600;
+  background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.18);
+  color:#F6EDDD; border-radius:999px; padding:5px 11px;
+}
+.sync-chip .dot{width:8px; height:8px; border-radius:50%; background:#999; flex:none}
+.sync-chip.ok .dot{background:#7FC98B}
+.sync-chip.busy .dot{background:#E8B252; animation:pulse 1s infinite}
+.sync-chip.err .dot{background:#E07B6E}
+.sync-chip.off .dot{background:#8C7A6B}
+@keyframes pulse{50%{opacity:.4}}
+.icon-btn{
+  background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.18);
+  color:#F6EDDD; border-radius:10px; padding:6px 10px; font-size:15px;
+}
+
+/* ---------- customer bar ---------- */
+.cust-bar{
+  background:var(--gold-soft); border-bottom:1px solid var(--line);
+  padding:8px 16px; display:flex; align-items:center; gap:10px;
+  position:sticky; top:49px; z-index:39; font-size:13.5px;
+}
+.cust-bar .who{font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1}
+.cust-bar .who .none{color:var(--muted); font-weight:500}
+.btn-mini{
+  background:var(--surface); border:1px solid var(--line); border-radius:8px;
+  padding:5px 10px; font-size:12.5px; font-weight:600; color:var(--ink); flex:none;
+}
+
+/* ---------- layout ---------- */
+main{max-width:860px; margin:0 auto; padding:16px}
+section[data-tab]{display:none}
+section[data-tab].active{display:block}
+.card{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+  box-shadow:var(--shadow); padding:14px 16px; margin-bottom:14px;
+}
+.card h2{margin:0 0 10px; font-size:18px}
+.card h3{margin:0 0 8px; font-size:15.5px}
+.row{display:flex; gap:10px; flex-wrap:wrap}
+.row > *{flex:1; min-width:130px}
+.tight{margin:0}
+
+/* scalloped bakery-ticket edge (signature) */
+.ticket{position:relative; border-bottom-left-radius:0; border-bottom-right-radius:0; margin-bottom:24px}
+.ticket::after{
+  content:""; position:absolute; left:0; right:0; bottom:-9px; height:10px;
+  background:radial-gradient(circle at 8px -3px, transparent 8px, var(--surface) 8.5px);
+  background-size:20px 10px; background-repeat:repeat-x;
+  filter:drop-shadow(0 2px 2px rgba(51,36,26,.07));
+}
+
+/* ---------- summary cards ---------- */
+.summaries{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:20px}
+.sum{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+  padding:12px; text-align:center; position:relative;
+}
+.sum::after{
+  content:""; position:absolute; left:0; right:0; bottom:-7px; height:8px;
+  background:radial-gradient(circle at 6px -2px, transparent 6px, var(--surface) 6.5px);
+  background-size:16px 8px; background-repeat:repeat-x;
+}
+.sum .label{font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.06em}
+.sum .val{font-family:'Fraunces',serif; font-weight:700; font-size:21px; margin-top:2px}
+.sum.grand{background:var(--ink); border-color:var(--ink); color:#F6EDDD}
+.sum.grand::after{background:radial-gradient(circle at 6px -2px, transparent 6px, var(--ink) 6.5px); background-size:16px 8px; background-repeat:repeat-x}
+.sum.grand .label{color:#CDBBA3}
+.sum .sub{font-size:11px; color:var(--muted)}
+.sum.grand .sub{color:#CDBBA3}
+
+/* ---------- buttons ---------- */
+.btn{
+  border:none; border-radius:10px; padding:10px 16px; font-weight:600; font-size:14.5px;
+  background:var(--surface2); color:var(--ink); border:1px solid var(--line);
+}
+.btn.primary{background:var(--gold); border-color:var(--gold); color:#fff}
+.btn.dark{background:var(--ink); border-color:var(--ink); color:#F6EDDD}
+.btn.danger{background:var(--red-soft); border-color:#DDB6B0; color:var(--red)}
+.btn.green{background:var(--green); border-color:var(--green); color:#fff}
+.btn.block{width:100%}
+.btn:disabled{opacity:.5; cursor:default}
+.btn-row{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px}
+.btn-row .btn{flex:1; min-width:120px}
+
+/* ---------- tables / item rows ---------- */
+.item-row{
+  display:grid; grid-template-columns:1fr 92px 96px 30px; gap:8px; align-items:center;
+  padding:8px 0; border-bottom:1px dashed var(--line);
+}
+.item-row .name{font-weight:600; font-size:14px}
+.item-row .size{font-size:12px; color:var(--muted)}
+.qty-ctl{display:flex; align-items:center; gap:0; border:1px solid var(--line); border-radius:9px; overflow:hidden; background:var(--surface)}
+.qty-ctl button{border:none; background:var(--surface2); width:28px; height:34px; font-size:17px; font-weight:700; color:var(--gold-deep); flex:none}
+.qty-ctl input{border:none; border-radius:0; text-align:center; padding:6px 2px; width:100%; min-width:0}
+.x-btn{background:none; border:none; color:var(--muted); font-size:17px; padding:4px}
+.x-btn:hover{color:var(--red)}
+
+/* ---------- products list ---------- */
+.prod-row{
+  display:grid; grid-template-columns:1.4fr 1fr 84px 84px 30px; gap:8px; align-items:center;
+  padding:7px 0; border-bottom:1px dashed var(--line);
+}
+.prod-head{font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); border-bottom:1px solid var(--line)}
+.prod-row input{padding:7px 8px; font-size:14px}
+@media (max-width:560px){
+  .prod-row{grid-template-columns:1.3fr .9fr 70px 70px 26px; gap:6px}
+  .prod-row input{padding:6px 6px; font-size:13.5px}
+}
+
+/* ---------- order cards ---------- */
+.order-card{border:1px solid var(--line); border-radius:12px; padding:12px; margin-bottom:10px; background:var(--surface)}
+.order-card .top{display:flex; align-items:baseline; gap:8px; flex-wrap:wrap}
+.order-card .num{font-family:'Fraunces',serif; font-weight:700; font-size:16px}
+.order-card .cname{font-weight:600}
+.order-card .meta{font-size:12.5px; color:var(--muted); margin-top:2px}
+.order-card .amount{margin-left:auto; font-family:'Fraunces',serif; font-weight:700; font-size:17px}
+.pill{
+  display:inline-block; font-size:11.5px; font-weight:700; border-radius:999px; padding:3px 10px;
+  letter-spacing:.02em;
+}
+.pill.s0{background:var(--gold-soft); color:var(--gold-deep)}
+.pill.s1{background:var(--blue-soft); color:var(--blue)}
+.pill.s2{background:#F3E3C2; color:#8A6215}
+.pill.s3{background:var(--green-soft); color:var(--green)}
+.pill.paid{background:var(--green-soft); color:var(--green)}
+.pill.unpaid{background:var(--red-soft); color:var(--red)}
+.pills{display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; align-items:center}
+.order-actions{display:flex; gap:6px; flex-wrap:wrap; margin-top:10px}
+.order-actions .btn{padding:7px 12px; font-size:13px; flex:none}
+.inline-confirm{display:flex; gap:6px; align-items:center; font-size:13px; font-weight:600; color:var(--red)}
+
+/* ---------- driver stop ---------- */
+.stop{border:1px solid var(--line); border-radius:12px; background:var(--surface); margin-bottom:14px; overflow:hidden}
+.stop .stop-head{padding:12px 14px; background:var(--surface2); border-bottom:1px solid var(--line)}
+.stop .stop-body{padding:12px 14px}
+.stop .addr{font-size:13.5px; color:var(--muted); margin-top:2px}
+.stop a{color:var(--gold-deep); font-weight:600; text-decoration:none}
+.d-row{display:grid; grid-template-columns:1fr 110px; gap:8px; align-items:center; padding:7px 0; border-bottom:1px dashed var(--line)}
+.d-row .lbl{font-size:14px; font-weight:600}
+.d-row .sub{font-size:12px; color:var(--muted)}
+.seg{display:flex; border:1px solid var(--line); border-radius:10px; overflow:hidden; margin-top:4px}
+.seg button{flex:1; border:none; background:var(--surface); padding:9px 4px; font-size:13px; font-weight:600; color:var(--muted); border-right:1px solid var(--line)}
+.seg button:last-child{border-right:none}
+.seg button.on{background:var(--ink); color:#F6EDDD}
+
+/* ---------- collapsible ---------- */
+details.panel{border:1px solid var(--line); border-radius:12px; background:var(--surface); margin-bottom:14px}
+details.panel > summary{
+  list-style:none; cursor:pointer; padding:12px 14px; font-weight:700; font-size:14.5px;
+  display:flex; align-items:center; gap:8px;
+}
+details.panel > summary::-webkit-details-marker{display:none}
+details.panel > summary::after{content:"+"; margin-left:auto; font-size:18px; color:var(--muted)}
+details.panel[open] > summary::after{content:"-"}
+details.panel .panel-body{padding:0 14px 14px}
+
+/* ---------- tabs ---------- */
+nav.tabs{
+  position:fixed; bottom:0; left:0; right:0; z-index:50;
+  background:var(--surface); border-top:1px solid var(--line);
+  display:flex; padding-bottom:env(safe-area-inset-bottom);
+  box-shadow:0 -2px 12px rgba(51,36,26,.08);
+}
+nav.tabs button{
+  flex:1; border:none; background:none; padding:9px 2px 8px;
+  font-size:11px; font-weight:600; color:var(--muted);
+  display:flex; flex-direction:column; align-items:center; gap:2px;
+}
+nav.tabs button .ico{font-size:20px; line-height:1}
+nav.tabs button.on{color:var(--gold-deep)}
+nav.tabs button.on .ico{transform:translateY(-1px)}
+@media (min-width:700px){
+  body{padding-bottom:20px}
+  nav.tabs{position:sticky; top:0; bottom:auto; order:-1; border-top:none; border-bottom:1px solid var(--line); max-width:860px; margin:0 auto 0; border-radius:0 0 14px 14px}
+  .app-wrap{display:flex; flex-direction:column}
+}
+
+/* ---------- toast / modal ---------- */
+#toasts{position:fixed; bottom:calc(84px + env(safe-area-inset-bottom)); left:0; right:0; display:flex; flex-direction:column; align-items:center; gap:8px; z-index:90; pointer-events:none}
+.toast{
+  background:var(--ink); color:#F6EDDD; border-radius:999px; padding:9px 18px;
+  font-size:13.5px; font-weight:600; box-shadow:var(--shadow); animation:rise .2s ease-out;
+  max-width:88vw;
+}
+.toast.err{background:var(--red)}
+@keyframes rise{from{opacity:0; transform:translateY(8px)}}
+#modal-back{position:fixed; inset:0; background:rgba(51,36,26,.45); z-index:80; display:none; align-items:flex-end; justify-content:center}
+#modal-back.open{display:flex}
+#modal{
+  background:var(--surface); border-radius:18px 18px 0 0; width:100%; max-width:560px;
+  max-height:86vh; overflow:auto; padding:18px 18px calc(18px + env(safe-area-inset-bottom));
+}
+@media (min-width:700px){ #modal-back{align-items:center} #modal{border-radius:18px} }
+
+.empty{
+  text-align:center; color:var(--muted); padding:28px 16px; font-size:14px;
+  border:1.5px dashed var(--line); border-radius:14px; background:var(--surface2);
+}
+.note-box textarea{min-height:64px; resize:vertical}
+.search-bar{margin-bottom:12px}
+.small{font-size:12.5px; color:var(--muted)}
+.right{text-align:right}
+.money{font-variant-numeric:tabular-nums}
+
+/* ---------- print ---------- */
+#printArea{display:none}
+@media print{
+  body{background:#fff; padding:0}
+  body > *:not(#printArea){display:none !important}
+  #printArea{display:block; font-family:'Outfit',system-ui,sans-serif; color:#1c1109; padding:24px; max-width:720px; margin:0 auto}
+  #printArea h1{font-family:'Fraunces',serif; font-size:26px; margin:0}
+  #printArea .p-head{display:flex; justify-content:space-between; align-items:flex-start; border-bottom:3px solid #1c1109; padding-bottom:12px; margin-bottom:16px}
+  #printArea .p-tag{font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:#8A4F1D; font-weight:700}
+  #printArea table{width:100%; border-collapse:collapse; margin:12px 0}
+  #printArea th{font-size:11px; text-transform:uppercase; letter-spacing:.06em; text-align:left; border-bottom:2px solid #1c1109; padding:6px 4px}
+  #printArea td{padding:7px 4px; border-bottom:1px dashed #c9b89f; font-size:14px}
+  #printArea .tot td{border-bottom:none; padding:3px 4px}
+  #printArea .grand td{font-family:'Fraunces',serif; font-weight:700; font-size:18px; border-top:2px solid #1c1109; padding-top:8px}
+  #printArea .p-foot{margin-top:22px; font-size:12px; color:#6b5a48; text-align:center; border-top:1px dashed #c9b89f; padding-top:12px}
+  #printArea .p-two{display:flex; justify-content:space-between; gap:24px; font-size:13.5px}
+  #printArea .p-badge{display:inline-block; border:2px solid #1c1109; border-radius:6px; padding:2px 10px; font-weight:700; font-size:12px; letter-spacing:.05em; text-transform:uppercase}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand" id="brandName">Cookie Shop</div>
+  <div class="spacer"></div>
+  <button class="sync-chip off" id="syncChip" title="Sync status - tap for settings">
+    <span class="dot"></span><span id="syncLabel">Local only</span>
+  </button>
+  <button class="icon-btn" id="settingsBtn" aria-label="Settings">&#9881;</button>
+</header>
+
+<div class="cust-bar">
+  <span class="who" id="custBarWho"><span class="none">No customer yet</span></span>
+  <button class="btn-mini" id="newOrderBtn">+ New order</button>
+</div>
+
+<main>
+
+<!-- ============ PRODUCTS ============ -->
+<section data-tab="products">
+  <div class="card ticket">
+    <h2>&#127850; Product catalog</h2>
+    <p class="small tight">Cost is what a box costs you to make; price is what the customer pays. Changes save automatically and sync to all devices.</p>
+    <div id="prodList" style="margin-top:10px"></div>
+    <div class="btn-row">
+      <button class="btn primary" id="addProdBtn">+ Add product</button>
+    </div>
+  </div>
+  <details class="panel note-box" id="notes-products-panel">
+    <summary>&#128221; Notes</summary>
+    <div class="panel-body"><textarea id="notes-products" placeholder="Notes for this tab..."></textarea></div>
+  </details>
+</section>
+
+<!-- ============ NEW ORDER ============ -->
+<section data-tab="order">
+  <div class="summaries" id="orderSummaries"></div>
+
+  <div class="card">
+    <h2>&#129489; Customer</h2>
+    <div class="row">
+      <div><label for="c-name">Name</label><input id="c-name" data-cust="name" autocomplete="off"></div>
+      <div><label for="c-phone">Phone</label><input id="c-phone" data-cust="phone" inputmode="tel" autocomplete="off"></div>
+    </div>
+    <div class="row">
+      <div><label for="c-email">Email</label><input id="c-email" data-cust="email" inputmode="email" autocomplete="off"></div>
+    </div>
+    <label for="c-address">Delivery address</label>
+    <input id="c-address" data-cust="address" autocomplete="off">
+    <p class="small" style="margin:8px 0 0">&#128666; Delivery is always free.</p>
+  </div>
+
+  <div class="card">
+    <h2>&#128722; Items</h2>
+    <div id="lineItems"></div>
+    <label for="addItemSel">Add item</label>
+    <select id="addItemSel"><option value="">Choose a product...</option></select>
+  </div>
+
+  <div class="card">
+    <h2>&#127991; Discount &amp; payment</h2>
+    <div class="row">
+      <div>
+        <label for="discType">Discount</label>
+        <select id="discType">
+          <option value="none">No discount</option>
+          <option value="pct">Percent (%)</option>
+          <option value="amt">Amount ($)</option>
+        </select>
+      </div>
+      <div><label for="discVal">Value</label><input id="discVal" inputmode="decimal" placeholder="0"></div>
+    </div>
+    <label>Payment plan</label>
+    <div class="seg" id="payPlanSeg">
+      <button data-plan="prepaid">Prepaid</button>
+      <button data-plan="cod-cash">Cash on delivery</button>
+      <button data-plan="cod-et">E-transfer on delivery</button>
+    </div>
+    <label for="orderNotes">Order notes (shows on invoice)</label>
+    <textarea id="orderNotes" rows="2"></textarea>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn dark block" id="saveOrderBtn">Save order</button>
+    <button class="btn primary block" id="printInvoiceBtn">Print / Save PDF invoice</button>
+  </div>
+  <p class="small right" id="editingHint" style="margin-top:6px"></p>
+
+  <details class="panel note-box" style="margin-top:14px">
+    <summary>&#128221; Notes</summary>
+    <div class="panel-body"><textarea id="notes-order" placeholder="Notes for this tab..."></textarea></div>
+  </details>
+</section>
+
+<!-- ============ ORDERS ============ -->
+<section data-tab="orders">
+  <div class="search-bar">
+    <input id="orderSearch" placeholder="Search name, phone, order #, item..." autocomplete="off">
+  </div>
+  <div id="ordersList"></div>
+  <details class="panel">
+    <summary>&#128190; Backup</summary>
+    <div class="panel-body">
+      <div class="btn-row" style="margin-top:0">
+        <button class="btn" id="exportBtn">Export JSON</button>
+        <button class="btn" id="importBtn">Import JSON</button>
+      </div>
+      <input type="file" id="importFile" accept="application/json" style="display:none">
+      <p class="small">Import replaces products and merges orders (newest wins).</p>
+    </div>
+  </details>
+  <details class="panel note-box">
+    <summary>&#128221; Notes</summary>
+    <div class="panel-body"><textarea id="notes-orders" placeholder="Notes for this tab..."></textarea></div>
+  </details>
+</section>
+
+<!-- ============ DELIVERY ============ -->
+<section data-tab="delivery">
+  <div class="card ticket">
+    <h2>&#128666; Delivery run</h2>
+    <p class="small tight">Orders marked <b>Out for Delivery</b> appear here as stops. Punch in what was dropped off, picked up, and collected, then mark delivered. Delivery is always free.</p>
+  </div>
+  <div id="stopsList"></div>
+  <details class="panel note-box">
+    <summary>&#128221; Notes</summary>
+    <div class="panel-body"><textarea id="notes-delivery" placeholder="Notes for this tab..."></textarea></div>
+  </details>
+</section>
+
+</main>
+
+<nav class="tabs" id="tabs">
+  <button data-go="products"><span class="ico">&#127850;</span>Products</button>
+  <button data-go="order"><span class="ico">&#129534;</span>New Order</button>
+  <button data-go="orders"><span class="ico">&#128230;</span>Orders</button>
+  <button data-go="delivery"><span class="ico">&#128666;</span>Delivery</button>
+</nav>
+
+<div id="toasts"></div>
+<div id="modal-back"><div id="modal" role="dialog" aria-modal="true"></div></div>
+<div id="printArea"></div>
+
+<script>
+'use strict';
+/* =====================================================
+   Cookie Shop - single file app
+   Storage key: cookie-data-v1 (versioned, self-migrating)
+   Sync: Firebase RTDB over plain REST + EventSource
+   ===================================================== */
+
+var LS_KEY = 'cookie-data-v1';
+var LS_SYNC = 'cookie-sync-cfg-v1';   // local-only: firebase url + store key
+var LS_CLIENT = 'cookie-client-id';
+var LS_DIRTY = 'cookie-dirty-v1';
+var HST_DEFAULT = 13;
+var STATUSES = ['Ordered', 'In Production', 'Out for Delivery', 'Delivered'];
+var PLAN_LABELS = { 'prepaid': 'Prepaid', 'cod-cash': 'Cash on delivery', 'cod-et': 'E-transfer on delivery' };
+
+/* ---------- tiny utils ---------- */
+function $(s, r) { return (r || document).querySelector(s); }
+function $all(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+function money(n) {
+  n = Number(n) || 0;
+  return '$' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+function num(v) { var n = parseFloat(v); return isFinite(n) ? n : 0; }
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+function nowMs() { return Date.now(); }
+function fmtDate(ms) {
+  if (!ms) return '';
+  var d = new Date(ms);
+  return d.toLocaleDateString('en-CA', { year: 'numeric', month: 'short', day: 'numeric' }) +
+    ' ' + d.toLocaleTimeString('en-CA', { hour: 'numeric', minute: '2-digit' });
+}
+function orderNum() {
+  var d = new Date();
+  var ymd = String(d.getFullYear()).slice(2) +
+    ('0' + (d.getMonth() + 1)).slice(-2) + ('0' + d.getDate()).slice(-2);
+  return 'C' + ymd + '-' + Math.random().toString(36).slice(2, 5).toUpperCase();
+}
+
+/* ---------- toast + modal (never alert/confirm/prompt) ---------- */
+function toast(msg, isErr) {
+  var t = document.createElement('div');
+  t.className = 'toast' + (isErr ? ' err' : '');
+  t.textContent = msg;
+  $('#toasts').appendChild(t);
+  setTimeout(function () { t.remove(); }, 2600);
+}
+function openModal(html) {
+  $('#modal').innerHTML = html;
+  $('#modal-back').classList.add('open');
+}
+function closeModal() { $('#modal-back').classList.remove('open'); }
+$('#modal-back').addEventListener('click', function (e) { if (e.target === this) closeModal(); });
+
+/* ---------- default state + migration ---------- */
+function seedProducts() {
+  var flavours = ['Chocolate Chip', 'Double Chocolate', 'Oatmeal Raisin', 'White Choc Macadamia', 'Peanut Butter', 'Snickerdoodle'];
+  var list = [];
+  flavours.forEach(function (f) {
+    list.push({ id: uid(), flavour: f, size: 'Box of 6', cost: 4.50, price: 12.00 });
+    list.push({ id: uid(), flavour: f, size: 'Box of 12', cost: 8.50, price: 22.00 });
+  });
+  return list;
+}
+function defaultState() {
+  return {
+    version: 1,
+    products: { _t: nowMs(), _c: '', list: seedProducts() },
+    orders: {},           // id -> order
+    trash: {},            // id -> deletedAt (tombstones so deletes sync safely)
+    notes: { _t: 0, _c: '', products: '', order: '', orders: '', delivery: '' },
+    settings: { _t: 0, _c: '', business: 'Cookie Shop', hst: HST_DEFAULT }
+  };
+}
+function blankOrder() {
+  return {
+    id: uid(), num: orderNum(), createdAt: nowMs(), updatedAt: 0, _c: '',
+    customer: { name: '', phone: '', email: '', address: '' },
+    items: [],            // {lineId, productId, flavour, size, qty, price, cost}
+    discType: 'none', discVal: 0,
+    plan: 'prepaid', paid: false, notes: '',
+    status: 0,
+    delivery: { qty: {}, pickups: [], notes: '', method: '', collected: 0, deliveredAt: 0 }
+  };
+}
+function migrate(s) {
+  // self-correcting: deep-fill anything missing so old/partial data never crashes the app
+  var d = defaultState();
+  if (!s || typeof s !== 'object') return d;
+  s.version = 1;
+  if (!s.products || !Array.isArray((s.products || {}).list)) s.products = d.products;
+  if (!s.orders || typeof s.orders !== 'object') s.orders = {};
+  if (!s.trash || typeof s.trash !== 'object') s.trash = {};
+  if (!s.notes || typeof s.notes !== 'object') s.notes = d.notes;
+  ['products', 'order', 'orders', 'delivery'].forEach(function (k) {
+    if (typeof s.notes[k] !== 'string') s.notes[k] = '';
+  });
+  if (!s.settings || typeof s.settings !== 'object') s.settings = d.settings;
+  if (typeof s.settings.business !== 'string') s.settings.business = 'Cookie Shop';
+  if (!isFinite(s.settings.hst)) s.settings.hst = HST_DEFAULT;
+  Object.keys(s.orders).forEach(function (id) {
+    var o = s.orders[id]; if (!o || typeof o !== 'object') { delete s.orders[id]; return; }
+    var b = blankOrder();
+    ['customer', 'delivery'].forEach(function (k) { if (!o[k] || typeof o[k] !== 'object') o[k] = b[k]; });
+    if (!Array.isArray(o.items)) o.items = [];
+    if (!Array.isArray(o.delivery.pickups)) o.delivery.pickups = [];
+    if (!o.delivery.qty || typeof o.delivery.qty !== 'object') o.delivery.qty = {};
+    if (!isFinite(o.status)) o.status = 0;
+    if (!o.plan) o.plan = 'prepaid';
+    if (!isFinite(o.updatedAt)) o.updatedAt = o.createdAt || nowMs();
+  });
+  return s;
+}
+function loadState() {
+  try { return migrate(JSON.parse(localStorage.getItem(LS_KEY))); }
+  catch (e) { return defaultState(); }
+}
+
+var state = loadState();
+var clientId = localStorage.getItem(LS_CLIENT);
+if (!clientId) { clientId = uid(); localStorage.setItem(LS_CLIENT, clientId); }
+var syncCfg = { url: '', key: '' };
+try { syncCfg = Object.assign(syncCfg, JSON.parse(localStorage.getItem(LS_SYNC) || '{}')); } catch (e) { }
+
+var draft = blankOrder();       // per-device order being built (not synced until saved)
+var editingId = null;           // id of saved order loaded into the builder, if any
+var activeTab = 'order';
+
+function saveLocal() {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) { }
+}
+
+/* =====================================================
+   SYNC - Firebase Realtime Database over REST
+   Writes:  fetch PUT  {base}/{path}.json
+   Listens: EventSource {base}.json  (instant push)
+   Every synced object carries _c (writer id) and a
+   timestamp; newer wins, own echoes are ignored.
+   ===================================================== */
+var dirty = {};                 // path -> true  (e.g. 'products', 'orders/abc')
+try { Object.assign(dirty, JSON.parse(localStorage.getItem(LS_DIRTY) || '{}')); } catch (e) { }
+var flushTimer = null, flushing = false, es = null, syncState = 'off', retryTimer = null;
+
+function syncBase() {
+  if (!syncCfg.url || !syncCfg.key) return '';
+  var u = syncCfg.url.replace(/\/+$/, '');
+  return u + '/stores/' + encodeURIComponent(syncCfg.key.trim());
+}
+function setSync(mode, label) {
+  syncState = mode;
+  var chip = $('#syncChip');
+  chip.className = 'sync-chip ' + mode;
+  $('#syncLabel').textContent = label;
+}
+function markDirty(path) {
+  dirty[path] = true;
+  try { localStorage.setItem(LS_DIRTY, JSON.stringify(dirty)); } catch (e) { }
+  if (!syncBase()) return;
+  clearTimeout(flushTimer);
+  flushTimer = setTimeout(flush, 600);
+}
+function payloadFor(path) {
+  if (path === 'products') return state.products;
+  if (path === 'settings') return state.settings;
+  if (path === 'notes') return state.notes;
+  if (path === 'trash') return state.trash;
+  var m = path.match(/^orders\/(.+)$/);
+  if (m) return state.orders[m[1]] || null;   // null = deleted
+  return undefined;
+}
+function flush() {
+  var base = syncBase();
+  if (!base || flushing) return;
+  var paths = Object.keys(dirty);
+  if (!paths.length) return;
+  flushing = true;
+  setSync('busy', 'Syncing...');
+  var chain = Promise.resolve();
+  paths.forEach(function (p) {
+    chain = chain.then(function () {
+      var body = payloadFor(p);
+      if (body === undefined) { delete dirty[p]; return; }
+      return fetch(base + '/' + p + '.json', {
+        method: 'PUT', body: JSON.stringify(body)
+      }).then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        delete dirty[p];
+      });
+    });
+  });
+  chain.then(function () {
+    flushing = false;
+    try { localStorage.setItem(LS_DIRTY, JSON.stringify(dirty)); } catch (e) { }
+    if (Object.keys(dirty).length) { flushTimer = setTimeout(flush, 400); }
+    else if (syncState !== 'err') setSync('ok', 'Synced');
+  }).catch(function () {
+    flushing = false;
+    setSync('err', 'Offline - will retry');
+    clearTimeout(retryTimer);
+    retryTimer = setTimeout(flush, 15000);
+  });
+}
+
+function newerWins(localObj, incoming) {
+  if (!incoming) return false;
+  if (incoming._c === clientId) return false;                 // our own echo
+  var lt = (localObj && localObj._t) || 0, it = incoming._t || 0;
+  return it >= lt && it !== lt || (it === lt && !localObj);
+}
+function applyRemoteOrder(id, o) {
+  if (o === null) {
+    if (state.orders[id]) { delete state.orders[id]; return true; }
+    return false;
+  }
+  if (!o || typeof o !== 'object') return false;
+  if (o._c === clientId) return false;
+  var local = state.orders[id];
+  var tomb = state.trash[id] || 0;
+  if (tomb >= (o.updatedAt || 0)) return false;               // deleted here more recently
+  if (local && (local.updatedAt || 0) >= (o.updatedAt || 0)) return false;
+  state.orders[id] = o;
+  return true;
+}
+function applyRemote(path, data) {
+  var changed = false;
+  var seg = path.replace(/^\//, '').split('/').filter(Boolean);
+  if (seg.length === 0) {
+    if (!data) return false;
+    if (newerWins(state.products, data.products)) { state.products = data.products; changed = true; }
+    if (newerWins(state.settings, data.settings)) { state.settings = data.settings; changed = true; }
+    if (newerWins(state.notes, data.notes)) { state.notes = data.notes; changed = true; }
+    if (data.trash) { Object.keys(data.trash).forEach(function (id) {
+      if ((data.trash[id] || 0) > (state.trash[id] || 0)) { state.trash[id] = data.trash[id]; changed = true; }
+    }); }
+    if (data.orders) { Object.keys(data.orders).forEach(function (id) {
+      if (applyRemoteOrder(id, data.orders[id])) changed = true;
+    }); }
+    // enforce tombstones
+    Object.keys(state.trash).forEach(function (id) {
+      var o = state.orders[id];
+      if (o && (state.trash[id] || 0) >= (o.updatedAt || 0)) { delete state.orders[id]; changed = true; }
+    });
+  } else if (seg[0] === 'products') {
+    if (newerWins(state.products, data)) { state.products = migrate({ products: data, orders: state.orders, trash: state.trash, notes: state.notes, settings: state.settings }).products; changed = true; }
+  } else if (seg[0] === 'settings') {
+    if (newerWins(state.settings, data)) { state.settings = data; changed = true; }
+  } else if (seg[0] === 'notes') {
+    if (seg.length === 1) { if (newerWins(state.notes, data)) { state.notes = data; changed = true; } }
+  } else if (seg[0] === 'trash') {
+    if (seg.length === 1 && data) {
+      Object.keys(data).forEach(function (id) {
+        if ((data[id] || 0) > (state.trash[id] || 0)) {
+          state.trash[id] = data[id];
+          if (state.orders[id] && state.trash[id] >= (state.orders[id].updatedAt || 0)) { delete state.orders[id]; }
+          changed = true;
+        }
+      });
+    } else if (seg.length === 2) {
+      var tid = seg[1];
+      if ((data || 0) > (state.trash[tid] || 0)) {
+        state.trash[tid] = data;
+        if (state.orders[tid] && data >= (state.orders[tid].updatedAt || 0)) delete state.orders[tid];
+        changed = true;
+      }
+    }
+  } else if (seg[0] === 'orders') {
+    if (seg.length === 1) {
+      data = data || {};
+      Object.keys(data).forEach(function (id) { if (applyRemoteOrder(id, data[id])) changed = true; });
+    } else {
+      if (applyRemoteOrder(seg[1], data)) changed = true;
+    }
+  }
+  if (changed) { state = migrate(state); saveLocal(); renderAll(); }
+  return changed;
+}
+function startStream() {
+  var base = syncBase();
+  if (!base) return;
+  if (es) { es.close(); es = null; }
+  try {
+    es = new EventSource(base + '.json');
+    es.addEventListener('put', function (ev) {
+      try { var d = JSON.parse(ev.data); applyRemote(d.path, d.data); } catch (e) { }
+      if (!Object.keys(dirty).length) setSync('ok', 'Synced');
+    });
+    es.addEventListener('patch', function (ev) {
+      try {
+        var d = JSON.parse(ev.data);
+        var p = d.path.replace(/\/$/, '');
+        Object.keys(d.data || {}).forEach(function (k) {
+          applyRemote((p === '/' ? '' : p) + '/' + k, d.data[k]);
+        });
+      } catch (e) { }
+    });
+    es.onerror = function () { setSync('err', 'Reconnecting...'); };
+    es.onopen = function () { if (!Object.keys(dirty).length) setSync('ok', 'Synced'); };
+  } catch (e) { setSync('err', 'Sync error'); }
+}
+function connectSync(silent) {
+  var base = syncBase();
+  if (!base) { setSync('off', 'Local only'); return; }
+  setSync('busy', 'Connecting...');
+  fetch(base + '.json').then(function (r) {
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+  }).then(function (remote) {
+    if (remote) applyRemote('/', remote);
+    // push anything remote is missing or that we changed offline
+    markDirty('products'); markDirty('settings'); markDirty('notes'); markDirty('trash');
+    Object.keys(state.orders).forEach(function (id) { markDirty('orders/' + id); });
+    flush();
+    startStream();
+    if (!silent) toast('Live sync connected');
+  }).catch(function () {
+    setSync('err', 'Cannot reach database');
+    if (!silent) toast('Could not connect - check URL and rules', true);
+  });
+}
+
+/* ---------- change helpers ---------- */
+function touchProducts() { state.products._t = nowMs(); state.products._c = clientId; saveLocal(); markDirty('products'); }
+function touchSettings() { state.settings._t = nowMs(); state.settings._c = clientId; saveLocal(); markDirty('settings'); }
+function touchNotes() { state.notes._t = nowMs(); state.notes._c = clientId; saveLocal(); markDirty('notes'); }
+function touchOrder(o) { o.updatedAt = nowMs(); o._c = clientId; state.orders[o.id] = o; saveLocal(); markDirty('orders/' + o.id); }
+function deleteOrder(id) {
+  delete state.orders[id];
+  state.trash[id] = nowMs();
+  saveLocal(); markDirty('orders/' + id); markDirty('trash');
+}
+
+/* =====================================================
+   CALCULATIONS  (HST from settings, default 13%)
+   ===================================================== */
+function calc(o) {
+  var cost = 0, subtotal = 0;
+  o.items.forEach(function (it) {
+    subtotal += num(it.qty) * num(it.price);
+    cost += num(it.qty) * num(it.cost);
+  });
+  var disc = 0;
+  if (o.discType === 'pct') disc = subtotal * num(o.discVal) / 100;
+  if (o.discType === 'amt') disc = num(o.discVal);
+  disc = Math.min(Math.max(disc, 0), subtotal);
+  var taxable = subtotal - disc;
+  var hst = taxable * num(state.settings.hst) / 100;
+  return { cost: cost, subtotal: subtotal, disc: disc, hst: hst, total: taxable + hst };
+}
+
+/* =====================================================
+   RENDER
+   ===================================================== */
+function renderAll() {
+  $('#brandName').textContent = state.settings.business || 'Cookie Shop';
+  renderCustBar();
+  renderProducts();
+  renderOrderBuilder();
+  renderOrders();
+  renderDelivery();
+  renderNotes();
+}
+function renderCustBar() {
+  var n = draft.customer.name;
+  $('#custBarWho').innerHTML = n
+    ? '&#128100; <b>' + esc(n) + '</b>' + (draft.customer.phone ? ' &middot; ' + esc(draft.customer.phone) : '')
+    : '<span class="none">No customer yet</span>';
+}
+
+/* ---------- products ---------- */
+function renderProducts() {
+  var el = $('#prodList');
+  var list = state.products.list;
+  if (!list.length) { el.innerHTML = '<div class="empty">No products yet. Add your first flavour below.</div>'; return; }
+  var h = '<div class="prod-row prod-head"><div>Flavour</div><div>Size</div><div>Cost</div><div>Price</div><div></div></div>';
+  list.forEach(function (p) {
+    h += '<div class="prod-row" data-pid="' + p.id + '">' +
+      '<input data-f="flavour" value="' + esc(p.flavour) + '" placeholder="Flavour">' +
+      '<input data-f="size" value="' + esc(p.size) + '" placeholder="Size">' +
+      '<input data-f="cost" inputmode="decimal" value="' + p.cost + '">' +
+      '<input data-f="price" inputmode="decimal" value="' + p.price + '">' +
+      '<button class="x-btn" data-del="' + p.id + '" aria-label="Remove">&#10005;</button></div>';
+  });
+  el.innerHTML = h;
+}
+$('#prodList').addEventListener('change', function (e) {
+  var row = e.target.closest('[data-pid]'); if (!row) return;
+  var p = state.products.list.find(function (x) { return x.id === row.dataset.pid; }); if (!p) return;
+  var f = e.target.dataset.f;
+  p[f] = (f === 'cost' || f === 'price') ? num(e.target.value) : e.target.value;
+  touchProducts(); fillItemSelect(); renderOrderBuilder();
+});
+$('#prodList').addEventListener('click', function (e) {
+  var id = e.target.dataset && e.target.dataset.del; if (!id) return;
+  var row = e.target.closest('.prod-row');
+  row.innerHTML = '<div class="inline-confirm" style="grid-column:1/-1">Remove this product? ' +
+    '<button class="btn danger" data-yes="' + id + '" style="padding:4px 12px">Remove</button> ' +
+    '<button class="btn" data-no="1" style="padding:4px 12px">Keep</button></div>';
+});
+$('#prodList').addEventListener('click', function (e) {
+  if (e.target.dataset && e.target.dataset.yes) {
+    state.products.list = state.products.list.filter(function (p) { return p.id !== e.target.dataset.yes; });
+    touchProducts(); renderProducts(); fillItemSelect(); toast('Product removed');
+  } else if (e.target.dataset && e.target.dataset.no) { renderProducts(); }
+});
+$('#addProdBtn').addEventListener('click', function () {
+  state.products.list.push({ id: uid(), flavour: '', size: 'Box of 6', cost: 0, price: 0 });
+  touchProducts(); renderProducts(); fillItemSelect();
+  var rows = $all('#prodList [data-pid]'); var last = rows[rows.length - 1];
+  if (last) last.querySelector('input').focus();
+});
+
+/* ---------- order builder ---------- */
+function fillItemSelect() {
+  var sel = $('#addItemSel');
+  var h = '<option value="">Choose a product...</option>';
+  state.products.list.forEach(function (p) {
+    if (!p.flavour) return;
+    h += '<option value="' + p.id + '">' + esc(p.flavour) + ' - ' + esc(p.size) + ' (' + money(p.price) + ')</option>';
+  });
+  h += '<option value="__custom">Custom item...</option>';
+  sel.innerHTML = h;
+}
+function renderOrderBuilder() {
+  // summaries
+  var c = calc(draft);
+  $('#orderSummaries').innerHTML =
+    '<div class="sum"><div class="label">Your cost</div><div class="val money">' + money(c.cost) + '</div></div>' +
+    '<div class="sum"><div class="label">Subtotal</div><div class="val money">' + money(c.subtotal) + '</div>' +
+      (c.disc ? '<div class="sub">- ' + money(c.disc) + ' discount</div>' : '') + '</div>' +
+    '<div class="sum grand"><div class="label">Grand total</div><div class="val money">' + money(c.total) + '</div>' +
+      '<div class="sub">incl. ' + money(c.hst) + ' HST (' + state.settings.hst + '%)</div></div>';
+
+  // customer fields (only overwrite when not focused, so typing is never clobbered)
+  $all('[data-cust]').forEach(function (inp) {
+    if (document.activeElement !== inp) inp.value = draft.customer[inp.dataset.cust] || '';
+  });
+  if (document.activeElement !== $('#discVal')) $('#discVal').value = draft.discVal || '';
+  $('#discType').value = draft.discType;
+  if (document.activeElement !== $('#orderNotes')) $('#orderNotes').value = draft.notes || '';
+  $all('#payPlanSeg button').forEach(function (b) {
+    b.classList.toggle('on', b.dataset.plan === draft.plan);
+  });
+
+  // line items
+  var el = $('#lineItems');
+  if (!draft.items.length) {
+    el.innerHTML = '<div class="empty">No items yet. Pick a product below to start the order.</div>';
+  } else {
+    var h = '';
+    draft.items.forEach(function (it) {
+      h += '<div class="item-row" data-line="' + it.lineId + '">' +
+        '<div><div class="name">' + esc(it.flavour) + '</div><div class="size">' + esc(it.size) + '</div></div>' +
+        '<div class="qty-ctl"><button data-q="-1" aria-label="Less">-</button>' +
+        '<input data-f="qty" inputmode="numeric" value="' + it.qty + '">' +
+        '<button data-q="1" aria-label="More">+</button></div>' +
+        '<input data-f="price" inputmode="decimal" value="' + it.price + '" aria-label="Unit price">' +
+        '<button class="x-btn" data-rm="1" aria-label="Remove">&#10005;</button></div>';
+    });
+    el.innerHTML = h;
+  }
+  $('#editingHint').textContent = editingId
+    ? 'Editing saved order ' + (state.orders[editingId] ? state.orders[editingId].num : '') + ' - saving updates it.'
+    : '';
+  renderCustBar();
+  fillItemSelect();
+}
+$('#addItemSel').addEventListener('change', function () {
+  var v = this.value; this.value = '';
+  if (!v) return;
+  if (v === '__custom') {
+    draft.items.push({ lineId: uid(), productId: '', flavour: 'Custom item', size: '', qty: 1, price: 0, cost: 0 });
+  } else {
+    var p = state.products.list.find(function (x) { return x.id === v; }); if (!p) return;
+    var ex = draft.items.find(function (i) { return i.productId === v; });
+    if (ex) { ex.qty = num(ex.qty) + 1; }
+    else draft.items.push({ lineId: uid(), productId: p.id, flavour: p.flavour, size: p.size, qty: 1, price: num(p.price), cost: num(p.cost) });
+  }
+  renderOrderBuilder();
+});
+$('#lineItems').addEventListener('click', function (e) {
+  var row = e.target.closest('[data-line]'); if (!row) return;
+  var it = draft.items.find(function (i) { return i.lineId === row.dataset.line; }); if (!it) return;
+  if (e.target.dataset.q) {
+    it.qty = Math.max(0, num(it.qty) + num(e.target.dataset.q));
+    renderOrderBuilder();
+  } else if (e.target.dataset.rm) {
+    draft.items = draft.items.filter(function (i) { return i !== it; });
+    renderOrderBuilder();
+  }
+});
+$('#lineItems').addEventListener('change', function (e) {
+  var row = e.target.closest('[data-line]'); if (!row) return;
+  var it = draft.items.find(function (i) { return i.lineId === row.dataset.line; }); if (!it) return;
+  if (e.target.dataset.f === 'qty') it.qty = Math.max(0, num(e.target.value));
+  if (e.target.dataset.f === 'price') it.price = num(e.target.value);
+  renderOrderBuilder();
+});
+$all('[data-cust]').forEach(function (inp) {
+  inp.addEventListener('input', function () {
+    draft.customer[inp.dataset.cust] = inp.value;
+    renderCustBar();
+  });
+});
+$('#discType').addEventListener('change', function () { draft.discType = this.value; renderOrderBuilder(); });
+$('#discVal').addEventListener('input', function () { draft.discVal = num(this.value); renderOrderBuilder(); });
+$('#orderNotes').addEventListener('input', function () { draft.notes = this.value; });
+$('#payPlanSeg').addEventListener('click', function (e) {
+  var b = e.target.closest('button'); if (!b) return;
+  draft.plan = b.dataset.plan;
+  if (draft.plan === 'prepaid') draft.paid = true; else draft.paid = false;
+  renderOrderBuilder();
+});
+$('#newOrderBtn').addEventListener('click', function () {
+  draft = blankOrder(); editingId = null;
+  renderOrderBuilder(); go('order'); toast('New order started');
+});
+$('#saveOrderBtn').addEventListener('click', function () {
+  if (!draft.customer.name.trim()) { toast('Add a customer name first', true); go('order'); $('#c-name').focus(); return; }
+  if (!draft.items.length) { toast('Add at least one item', true); return; }
+  var o = JSON.parse(JSON.stringify(draft));
+  if (editingId && state.orders[editingId]) { o.id = editingId; o.num = state.orders[editingId].num; o.createdAt = state.orders[editingId].createdAt; }
+  touchOrder(o);
+  editingId = o.id;
+  renderAll();
+  toast('Order ' + o.num + ' saved');
+});
+
+/* ---------- orders tab ---------- */
+function orderMatches(o, q) {
+  if (!q) return true;
+  q = q.toLowerCase();
+  var hay = [o.num, o.customer.name, o.customer.phone, o.customer.email, o.customer.address]
+    .concat(o.items.map(function (i) { return i.flavour + ' ' + i.size; })).join(' ').toLowerCase();
+  return hay.indexOf(q) !== -1;
+}
+function renderOrders() {
+  var q = $('#orderSearch').value.trim();
+  var list = Object.keys(state.orders).map(function (id) { return state.orders[id]; })
+    .filter(function (o) { return orderMatches(o, q); })
+    .sort(function (a, b) { return b.createdAt - a.createdAt; });
+  var el = $('#ordersList');
+  if (!list.length) {
+    el.innerHTML = '<div class="empty">' + (q ? 'No orders match "' + esc(q) + '".' : 'No saved orders yet. Build one in the New Order tab.') + '</div>';
+    return;
+  }
+  var h = '';
+  list.forEach(function (o) {
+    var c = calc(o);
+    h += '<div class="order-card" data-oid="' + o.id + '">' +
+      '<div class="top"><span class="num">' + esc(o.num) + '</span>' +
+      '<span class="cname">' + esc(o.customer.name) + '</span>' +
+      '<span class="amount money">' + money(c.total) + '</span></div>' +
+      '<div class="meta">' + fmtDate(o.createdAt) +
+      (o.customer.phone ? ' &middot; ' + esc(o.customer.phone) : '') +
+      ' &middot; ' + o.items.reduce(function (s, i) { return s + num(i.qty); }, 0) + ' boxes</div>' +
+      '<div class="pills">' +
+      '<select data-status style="width:auto; padding:4px 8px; font-size:12.5px; font-weight:600">' +
+      STATUSES.map(function (s, i) { return '<option value="' + i + '"' + (o.status === i ? ' selected' : '') + '>' + s + '</option>'; }).join('') +
+      '</select>' +
+      '<button class="pill ' + (o.paid ? 'paid' : 'unpaid') + '" data-paid style="border:none;cursor:pointer">' + (o.paid ? 'PAID' : 'UNPAID') + '</button>' +
+      '<span class="pill s' + o.status + '">' + PLAN_LABELS[o.plan] + '</span>' +
+      '</div>' +
+      '<div class="order-actions">' +
+      '<button class="btn" data-act="load">Open</button>' +
+      '<button class="btn" data-act="dup">Duplicate</button>' +
+      '<button class="btn" data-act="invoice">Invoice</button>' +
+      '<button class="btn danger" data-act="del">Delete</button>' +
+      '</div></div>';
+  });
+  el.innerHTML = h;
+}
+$('#orderSearch').addEventListener('input', renderOrders);
+$('#ordersList').addEventListener('change', function (e) {
+  var card = e.target.closest('[data-oid]'); if (!card) return;
+  var o = state.orders[card.dataset.oid]; if (!o) return;
+  if (e.target.hasAttribute('data-status')) {
+    o.status = num(e.target.value);
+    if (o.status === 3 && !o.delivery.deliveredAt) o.delivery.deliveredAt = nowMs();
+    touchOrder(o); renderAll();
+  }
+});
+$('#ordersList').addEventListener('click', function (e) {
+  var card = e.target.closest('[data-oid]'); if (!card) return;
+  var o = state.orders[card.dataset.oid]; if (!o) return;
+  if (e.target.hasAttribute('data-paid')) {
+    o.paid = !o.paid; touchOrder(o); renderAll(); return;
+  }
+  var act = e.target.dataset && e.target.dataset.act;
+  if (!act) return;
+  if (act === 'load') {
+    draft = JSON.parse(JSON.stringify(o)); editingId = o.id;
+    renderOrderBuilder(); go('order'); toast('Order ' + o.num + ' opened for editing');
+  } else if (act === 'dup') {
+    draft = JSON.parse(JSON.stringify(o));
+    draft.id = uid(); draft.num = orderNum(); draft.createdAt = nowMs(); draft.updatedAt = 0;
+    draft.status = 0; draft.paid = draft.plan === 'prepaid' ? false : false;
+    draft.delivery = blankOrder().delivery;
+    editingId = null;
+    renderOrderBuilder(); go('order'); toast('Duplicated as ' + draft.num);
+  } else if (act === 'invoice') {
+    printInvoice(o);
+  } else if (act === 'del') {
+    var actions = card.querySelector('.order-actions');
+    actions.innerHTML = '<div class="inline-confirm">Delete ' + esc(o.num) + '? ' +
+      '<button class="btn danger" data-act="delyes" style="padding:5px 12px">Delete</button> ' +
+      '<button class="btn" data-act="delno" style="padding:5px 12px">Keep</button></div>';
+  } else if (act === 'delyes') {
+    if (editingId === o.id) { editingId = null; }
+    deleteOrder(o.id); renderAll(); toast('Order deleted');
+  } else if (act === 'delno') { renderOrders(); }
+});
+
+/* ---------- export / import ---------- */
+$('#exportBtn').addEventListener('click', function () {
+  var blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'cookie-shop-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+  a.click();
+  setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+  toast('Backup exported');
+});
+$('#importBtn').addEventListener('click', function () { $('#importFile').click(); });
+$('#importFile').addEventListener('change', function () {
+  var f = this.files[0]; this.value = '';
+  if (!f) return;
+  var rd = new FileReader();
+  rd.onload = function () {
+    try {
+      var inc = migrate(JSON.parse(rd.result));
+      state.products = inc.products; state.products._t = nowMs(); state.products._c = clientId;
+      Object.keys(inc.orders).forEach(function (id) {
+        var lo = state.orders[id];
+        if (!lo || (inc.orders[id].updatedAt || 0) > (lo.updatedAt || 0)) {
+          state.orders[id] = inc.orders[id];
+          markDirty('orders/' + id);
+        }
+      });
+      saveLocal(); markDirty('products'); renderAll();
+      toast('Backup imported');
+    } catch (e) { toast('That file is not a valid backup', true); }
+  };
+  rd.readAsText(f);
+});
+
+/* ---------- delivery / driver ---------- */
+function renderDelivery() {
+  var stops = Object.keys(state.orders).map(function (id) { return state.orders[id]; })
+    .filter(function (o) { return o.status === 2; })
+    .sort(function (a, b) { return a.createdAt - b.createdAt; });
+  var recent = Object.keys(state.orders).map(function (id) { return state.orders[id]; })
+    .filter(function (o) { return o.status === 3; })
+    .sort(function (a, b) { return (b.delivery.deliveredAt || 0) - (a.delivery.deliveredAt || 0); }).slice(0, 5);
+  var el = $('#stopsList');
+  var h = '';
+  if (!stops.length) {
+    h += '<div class="empty">No stops on the run. Set an order to <b>Out for Delivery</b> in the Orders tab and it will show up here.</div>';
+  }
+  stops.forEach(function (o) { h += stopCard(o); });
+  if (recent.length) {
+    h += '<h3 style="margin:18px 0 8px; font-size:15px; color:var(--muted)">Recently delivered</h3>';
+    recent.forEach(function (o) {
+      var c = calc(o);
+      h += '<div class="order-card"><div class="top"><span class="num">' + esc(o.num) + '</span>' +
+        '<span class="cname">' + esc(o.customer.name) + '</span>' +
+        '<span class="amount money">' + money(c.total) + '</span></div>' +
+        '<div class="meta">Delivered ' + fmtDate(o.delivery.deliveredAt) +
+        (o.delivery.method ? ' &middot; ' + esc(o.delivery.method) : '') + '</div>' +
+        '<div class="order-actions"><button class="btn" data-receipt="' + o.id + '">Receipt</button></div></div>';
+    });
+  }
+  el.innerHTML = h;
+}
+function stopCard(o) {
+  var c = calc(o);
+  var tel = (o.customer.phone || '').replace(/[^\d+]/g, '');
+  var map = o.customer.address ? 'https://maps.google.com/?q=' + encodeURIComponent(o.customer.address) : '';
+  var h = '<div class="stop" data-sid="' + o.id + '">' +
+    '<div class="stop-head"><div class="top" style="display:flex;gap:8px;align-items:baseline;flex-wrap:wrap">' +
+    '<span class="num display" style="font-weight:700">' + esc(o.num) + '</span>' +
+    '<b>' + esc(o.customer.name) + '</b>' +
+    '<span style="margin-left:auto" class="pill ' + (o.paid ? 'paid' : 'unpaid') + '">' + (o.paid ? 'PAID' : PLAN_LABELS[o.plan]) + '</span></div>' +
+    '<div class="addr">' +
+    (map ? '<a href="' + esc(map) + '" target="_blank" rel="noopener">&#128205; ' + esc(o.customer.address) + '</a>' : 'No address on file') +
+    (tel ? ' &middot; <a href="tel:' + esc(tel) + '">&#128222; ' + esc(o.customer.phone) + '</a>' : '') +
+    '</div></div><div class="stop-body">';
+
+  // drop-offs
+  h += '<div class="small" style="font-weight:700; text-transform:uppercase; letter-spacing:.05em">Dropped off</div>';
+  o.items.forEach(function (it) {
+    var dq = (o.delivery.qty[it.lineId] === undefined) ? it.qty : o.delivery.qty[it.lineId];
+    h += '<div class="d-row"><div><div class="lbl">' + esc(it.flavour) + '</div><div class="sub">' + esc(it.size) + ' &middot; ordered ' + it.qty + '</div></div>' +
+      '<div class="qty-ctl"><button data-dq="-1" data-line="' + it.lineId + '">-</button>' +
+      '<input data-dqi="' + it.lineId + '" inputmode="numeric" value="' + dq + '">' +
+      '<button data-dq="1" data-line="' + it.lineId + '">+</button></div></div>';
+  });
+
+  // pick-ups
+  h += '<div class="small" style="font-weight:700; text-transform:uppercase; letter-spacing:.05em; margin-top:12px">Picked up</div>';
+  if (!o.delivery.pickups.length) h += '<div class="small" style="padding:6px 0">Nothing picked up at this stop.</div>';
+  o.delivery.pickups.forEach(function (pu) {
+    h += '<div class="d-row"><div><input data-pud="' + pu.id + '" value="' + esc(pu.desc) + '" placeholder="What was picked up"></div>' +
+      '<div class="qty-ctl"><button data-puq="-1" data-pu="' + pu.id + '">-</button>' +
+      '<input data-puqi="' + pu.id + '" inputmode="numeric" value="' + pu.qty + '">' +
+      '<button data-puq="1" data-pu="' + pu.id + '">+</button></div></div>';
+  });
+  h += '<button class="btn" data-addpu="1" style="margin-top:8px; padding:7px 12px; font-size:13px">+ Add pickup</button>';
+
+  // payment
+  h += '<div class="small" style="font-weight:700; text-transform:uppercase; letter-spacing:.05em; margin-top:14px">Payment at door &middot; total ' + money(c.total) + '</div>' +
+    '<div class="seg" data-payseg="1">' +
+    ['Prepaid', 'Cash', 'E-transfer'].map(function (m) {
+      return '<button data-pm="' + m + '"' + (o.delivery.method === m ? ' class="on"' : '') + '>' + m + '</button>';
+    }).join('') + '</div>' +
+    '<div class="row" style="margin-top:8px"><div><label style="margin-top:0">Collected ($)</label>' +
+    '<input data-coll="1" inputmode="decimal" value="' + (o.delivery.collected || '') + '" placeholder="0.00"></div></div>';
+
+  // notes + actions
+  h += '<label>Delivery notes</label><textarea data-dnotes="1" rows="2" placeholder="Left at door, gate code, etc.">' + esc(o.delivery.notes) + '</textarea>' +
+    '<div class="btn-row">' +
+    '<button class="btn" data-receipt="' + o.id + '">&#128424; Print receipt</button>' +
+    '<button class="btn" data-share="' + o.id + '">&#128228; Send receipt</button>' +
+    '<button class="btn green" data-delivered="1">&#10003; Mark delivered</button>' +
+    '</div></div></div>';
+  return h;
+}
+function stopOrder(e) {
+  var card = e.target.closest('[data-sid]');
+  return card ? state.orders[card.dataset.sid] : null;
+}
+$('#stopsList').addEventListener('click', function (e) {
+  // receipt buttons can live outside stop cards (recently delivered)
+  if (e.target.dataset && e.target.dataset.receipt) { var ro = state.orders[e.target.dataset.receipt]; if (ro) printReceipt(ro); return; }
+  if (e.target.dataset && e.target.dataset.share) { var so = state.orders[e.target.dataset.share]; if (so) shareReceipt(so); return; }
+  var o = stopOrder(e); if (!o) return;
+  var d = e.target.dataset || {};
+  if (d.dq) {
+    var cur = (o.delivery.qty[d.line] === undefined)
+      ? num((o.items.find(function (i) { return i.lineId === d.line; }) || {}).qty)
+      : num(o.delivery.qty[d.line]);
+    o.delivery.qty[d.line] = Math.max(0, cur + num(d.dq));
+    touchOrder(o); renderDelivery();
+  } else if (d.puq) {
+    var pu = o.delivery.pickups.find(function (p) { return p.id === d.pu; });
+    if (pu) { pu.qty = Math.max(0, num(pu.qty) + num(d.puq)); touchOrder(o); renderDelivery(); }
+  } else if (d.addpu) {
+    o.delivery.pickups.push({ id: uid(), desc: '', qty: 1 });
+    touchOrder(o); renderDelivery();
+  } else if (d.pm) {
+    o.delivery.method = d.pm;
+    touchOrder(o); renderDelivery();
+  } else if (d.delivered) {
+    o.status = 3;
+    o.delivery.deliveredAt = nowMs();
+    if (o.delivery.method && o.delivery.method !== 'Prepaid' && num(o.delivery.collected) > 0) o.paid = true;
+    if (o.plan === 'prepaid') o.paid = true;
+    touchOrder(o); renderAll(); toast('Delivered - ' + o.customer.name);
+  }
+});
+$('#stopsList').addEventListener('change', function (e) {
+  var o = stopOrder(e); if (!o) return;
+  var d = e.target.dataset || {};
+  if (d.dqi) { o.delivery.qty[d.dqi] = Math.max(0, num(e.target.value)); touchOrder(o); }
+  else if (d.puqi) { var pu = o.delivery.pickups.find(function (p) { return p.id === d.puqi; }); if (pu) { pu.qty = Math.max(0, num(e.target.value)); touchOrder(o); } }
+  else if (d.pud) { var pu2 = o.delivery.pickups.find(function (p) { return p.id === d.pud; }); if (pu2) { pu2.desc = e.target.value; touchOrder(o); } }
+  else if (d.coll) { o.delivery.collected = num(e.target.value); touchOrder(o); }
+  else if (d.dnotes) { o.delivery.notes = e.target.value; touchOrder(o); }
+});
+
+/* ---------- notes ---------- */
+function renderNotes() {
+  ['products', 'order', 'orders', 'delivery'].forEach(function (k) {
+    var ta = $('#notes-' + k);
+    if (ta && document.activeElement !== ta) ta.value = state.notes[k] || '';
+  });
+}
+['products', 'order', 'orders', 'delivery'].forEach(function (k) {
+  $('#notes-' + k).addEventListener('input', function () {
+    state.notes[k] = this.value; touchNotes();
+  });
+});
+
+/* =====================================================
+   PRINT - invoice + driver receipt (browser print/PDF)
+   ===================================================== */
+function printDocHead(title, o) {
+  return '<div class="p-head"><div><h1>' + esc(state.settings.business || 'Cookie Shop') + '</h1>' +
+    '<div class="p-tag">' + title + '</div></div>' +
+    '<div style="text-align:right"><div style="font-family:Fraunces,serif;font-weight:700;font-size:17px">' + esc(o.num) + '</div>' +
+    '<div style="font-size:13px">' + fmtDate(title === 'Delivery receipt' ? (o.delivery.deliveredAt || nowMs()) : o.createdAt) + '</div></div></div>';
+}
+function printInvoice(o) {
+  var c = calc(o);
+  var h = printDocHead('Invoice', o);
+  h += '<div class="p-two"><div><b>Bill to</b><br>' + esc(o.customer.name) +
+    (o.customer.phone ? '<br>' + esc(o.customer.phone) : '') +
+    (o.customer.email ? '<br>' + esc(o.customer.email) : '') + '</div>' +
+    '<div style="text-align:right"><b>Deliver to</b><br>' + esc(o.customer.address || 'Pickup') +
+    '<br><span class="p-badge">' + (o.paid ? 'Paid' : PLAN_LABELS[o.plan]) + '</span></div></div>';
+  h += '<table><tr><th>Item</th><th style="text-align:center">Qty</th><th style="text-align:right">Price</th><th style="text-align:right">Total</th></tr>';
+  o.items.forEach(function (it) {
+    h += '<tr><td>' + esc(it.flavour) + (it.size ? ' <span style="color:#6b5a48">(' + esc(it.size) + ')</span>' : '') + '</td>' +
+      '<td style="text-align:center">' + it.qty + '</td>' +
+      '<td style="text-align:right">' + money(it.price) + '</td>' +
+      '<td style="text-align:right">' + money(num(it.qty) * num(it.price)) + '</td></tr>';
+  });
+  h += '</table><table style="max-width:280px; margin-left:auto">' +
+    '<tr class="tot"><td>Subtotal</td><td style="text-align:right">' + money(c.subtotal) + '</td></tr>' +
+    (c.disc ? '<tr class="tot"><td>Discount</td><td style="text-align:right">- ' + money(c.disc) + '</td></tr>' : '') +
+    '<tr class="tot"><td>Delivery</td><td style="text-align:right">FREE</td></tr>' +
+    '<tr class="tot"><td>HST (' + state.settings.hst + '%)</td><td style="text-align:right">' + money(c.hst) + '</td></tr>' +
+    '<tr class="grand"><td>Total (CAD)</td><td style="text-align:right">' + money(c.total) + '</td></tr></table>';
+  if (o.notes) h += '<p style="font-size:13px"><b>Notes:</b> ' + esc(o.notes) + '</p>';
+  h += '<div class="p-foot">Thank you! &#127850; Free delivery, always. &middot; HST included as shown.</div>';
+  $('#printArea').innerHTML = h;
+  window.print();
+}
+function printReceipt(o) {
+  var c = calc(o);
+  var h = printDocHead('Delivery receipt', o);
+  h += '<div class="p-two"><div><b>Customer</b><br>' + esc(o.customer.name) +
+    (o.customer.address ? '<br>' + esc(o.customer.address) : '') + '</div>' +
+    '<div style="text-align:right"><span class="p-badge">' + (o.paid ? 'Paid' : 'Balance due') + '</span></div></div>';
+  h += '<table><tr><th>Dropped off</th><th style="text-align:center">Ordered</th><th style="text-align:center">Delivered</th></tr>';
+  o.items.forEach(function (it) {
+    var dq = (o.delivery.qty[it.lineId] === undefined) ? it.qty : o.delivery.qty[it.lineId];
+    h += '<tr><td>' + esc(it.flavour) + (it.size ? ' <span style="color:#6b5a48">(' + esc(it.size) + ')</span>' : '') + '</td>' +
+      '<td style="text-align:center">' + it.qty + '</td><td style="text-align:center"><b>' + dq + '</b></td></tr>';
+  });
+  h += '</table>';
+  if (o.delivery.pickups.length) {
+    h += '<table><tr><th>Picked up</th><th style="text-align:center">Qty</th></tr>';
+    o.delivery.pickups.forEach(function (pu) {
+      h += '<tr><td>' + esc(pu.desc || 'Item') + '</td><td style="text-align:center">' + pu.qty + '</td></tr>';
+    });
+    h += '</table>';
+  }
+  h += '<table style="max-width:300px; margin-left:auto">' +
+    '<tr class="tot"><td>Order total (incl. HST)</td><td style="text-align:right">' + money(c.total) + '</td></tr>' +
+    '<tr class="tot"><td>Payment</td><td style="text-align:right">' + esc(o.delivery.method || PLAN_LABELS[o.plan]) + '</td></tr>' +
+    '<tr class="tot"><td>Collected</td><td style="text-align:right">' + money(o.delivery.collected) + '</td></tr>' +
+    '<tr class="grand"><td>Balance</td><td style="text-align:right">' + money(Math.max(0, c.total - (o.paid ? c.total : num(o.delivery.collected)))) + '</td></tr></table>';
+  if (o.delivery.notes) h += '<p style="font-size:13px"><b>Delivery notes:</b> ' + esc(o.delivery.notes) + '</p>';
+  h += '<div class="p-foot">Delivered ' + fmtDate(o.delivery.deliveredAt || nowMs()) + ' &middot; Thank you! &#127850;</div>';
+  $('#printArea').innerHTML = h;
+  window.print();
+}
+function receiptText(o) {
+  var c = calc(o);
+  var lines = [];
+  lines.push((state.settings.business || 'Cookie Shop') + ' - Delivery receipt ' + o.num);
+  lines.push('Customer: ' + o.customer.name);
+  lines.push('');
+  lines.push('Dropped off:');
+  o.items.forEach(function (it) {
+    var dq = (o.delivery.qty[it.lineId] === undefined) ? it.qty : o.delivery.qty[it.lineId];
+    lines.push('  ' + dq + ' x ' + it.flavour + (it.size ? ' (' + it.size + ')' : ''));
+  });
+  if (o.delivery.pickups.length) {
+    lines.push('Picked up:');
+    o.delivery.pickups.forEach(function (pu) { lines.push('  ' + pu.qty + ' x ' + (pu.desc || 'item')); });
+  }
+  lines.push('');
+  lines.push('Total (incl. ' + state.settings.hst + '% HST): ' + money(c.total));
+  lines.push('Payment: ' + (o.delivery.method || PLAN_LABELS[o.plan]) + (num(o.delivery.collected) ? ' - collected ' + money(o.delivery.collected) : ''));
+  lines.push(o.paid ? 'Status: PAID' : 'Balance: ' + money(Math.max(0, c.total - num(o.delivery.collected))));
+  return lines.join('\n');
+}
+function shareReceipt(o) {
+  var txt = receiptText(o);
+  if (navigator.share) {
+    navigator.share({ title: 'Receipt ' + o.num, text: txt }).catch(function () { });
+  } else if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt).then(function () { toast('Receipt copied - paste into a text or email'); });
+  } else { toast('Sharing not available on this browser', true); }
+}
+$('#printInvoiceBtn').addEventListener('click', function () {
+  if (!draft.items.length) { toast('Add items before printing an invoice', true); return; }
+  printInvoice(draft);
+});
+
+/* ---------- settings modal ---------- */
+function openSettings() {
+  openModal(
+    '<h2 style="margin:0 0 4px">Settings</h2>' +
+    '<label for="s-biz">Business name (shows on invoices)</label><input id="s-biz" value="' + esc(state.settings.business) + '">' +
+    '<label for="s-hst">HST rate (%)</label><input id="s-hst" inputmode="decimal" value="' + state.settings.hst + '">' +
+    '<h3 style="margin:18px 0 2px">Live sync</h3>' +
+    '<p class="small tight">Both devices must use the same database URL and store key. The store key is your shared PIN - anything hard to guess.</p>' +
+    '<label for="s-url">Firebase database URL</label><input id="s-url" placeholder="https://your-project-default-rtdb.firebaseio.com" value="' + esc(syncCfg.url) + '">' +
+    '<label for="s-key">Store key (shared PIN)</label><input id="s-key" placeholder="e.g. maple-crumb-4417" value="' + esc(syncCfg.key) + '">' +
+    '<div class="btn-row">' +
+    '<button class="btn primary" id="s-save">Save &amp; connect</button>' +
+    '<button class="btn" id="s-close">Close</button></div>'
+  );
+  $('#s-save').addEventListener('click', function () {
+    state.settings.business = $('#s-biz').value.trim() || 'Cookie Shop';
+    var hst = num($('#s-hst').value);
+    state.settings.hst = (hst > 0 && hst < 100) ? hst : HST_DEFAULT;
+    touchSettings();
+    var url = $('#s-url').value.trim(), key = $('#s-key').value.trim();
+    var changed = (url !== syncCfg.url || key !== syncCfg.key);
+    syncCfg.url = url; syncCfg.key = key;
+    localStorage.setItem(LS_SYNC, JSON.stringify(syncCfg));
+    closeModal(); renderAll();
+    if (url && key) { connectSync(false); }
+    else { if (es) { es.close(); es = null; } setSync('off', 'Local only'); }
+    if (!changed) toast('Settings saved');
+  });
+  $('#s-close').addEventListener('click', closeModal);
+}
+$('#settingsBtn').addEventListener('click', openSettings);
+$('#syncChip').addEventListener('click', openSettings);
+
+/* ---------- tabs ---------- */
+function go(tab) {
+  activeTab = tab;
+  $all('section[data-tab]').forEach(function (s) { s.classList.toggle('active', s.dataset.tab === tab); });
+  $all('nav.tabs button').forEach(function (b) { b.classList.toggle('on', b.dataset.go === tab); });
+  window.scrollTo(0, 0);
+}
+$('#tabs').addEventListener('click', function (e) {
+  var b = e.target.closest('button'); if (b) go(b.dataset.go);
+});
+
+/* ---------- boot ---------- */
+saveLocal();          // persists seeded defaults on first run
+renderAll();
+go('order');
+if (syncBase()) connectSync(true); else setSync('off', 'Local only');
+</script>
+</body>
+</html>
