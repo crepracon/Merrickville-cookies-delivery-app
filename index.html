@@ -300,7 +300,7 @@ nav.tabs button.on .ico{transform:translateY(-1px)}
 <section data-tab="products">
   <div class="card ticket">
     <h2>&#127850; Product catalog</h2>
-    <p class="small tight">Cost is what a box costs you to make; price is what the customer pays. Changes save automatically and sync to all devices.</p>
+    <p class="small tight">Cost is what one unit costs you to make; price is what the customer pays per unit. Changes save automatically and sync to all devices.</p>
     <div id="prodList" style="margin-top:10px"></div>
     <div class="btn-row">
       <button class="btn primary" id="addProdBtn">+ Add product</button>
@@ -434,6 +434,7 @@ var LS_KEY = 'cookie-data-v1';
 var LS_SYNC = 'cookie-sync-cfg-v1';   // local-only: firebase url + store key
 var LS_CLIENT = 'cookie-client-id';
 var LS_DIRTY = 'cookie-dirty-v1';
+var catalogUpgraded = false;
 var HST_DEFAULT = 13;
 var STATUSES = ['Ordered', 'In Production', 'Out for Delivery', 'Delivered'];
 var PLAN_LABELS = { 'prepaid': 'Prepaid', 'cod-cash': 'Cash on delivery', 'cod-et': 'E-transfer on delivery' };
@@ -483,18 +484,21 @@ $('#modal-back').addEventListener('click', function (e) { if (e.target === this)
 
 /* ---------- default state + migration ---------- */
 function seedProducts() {
-  var flavours = ['Chocolate Chip', 'Double Chocolate', 'Oatmeal Raisin', 'White Choc Macadamia', 'Peanut Butter', 'Snickerdoodle'];
+  var variants = ['Chocolate Chip', 'Cookies and Cream', 'Garbage Can', 'Caramel'];
+  var cats = ['4" cookies', '7" cookies', 'Cookie dough', 'Buttertarts'];
   var list = [];
-  flavours.forEach(function (f) {
-    list.push({ id: uid(), flavour: f, size: 'Box of 6', cost: 4.50, price: 12.00 });
-    list.push({ id: uid(), flavour: f, size: 'Box of 12', cost: 8.50, price: 22.00 });
+  cats.forEach(function (cat) {
+    variants.forEach(function (v) {
+      list.push({ id: uid(), flavour: v, size: cat, cost: 3.50, price: 0 });
+    });
   });
+  list.push({ id: uid(), flavour: 'Chocolate Mint', size: 'Fudge', cost: 3.50, price: 0 });
   return list;
 }
 function defaultState() {
   return {
     version: 1,
-    products: { _t: nowMs(), _c: '', list: seedProducts() },
+    products: { _t: nowMs(), _c: '', list: seedProducts(), catalogV: 2 },
     orders: {},           // id -> order
     trash: {},            // id -> deletedAt (tombstones so deletes sync safely)
     notes: { _t: 0, _c: '', products: '', order: '', orders: '', delivery: '' },
@@ -518,6 +522,10 @@ function migrate(s) {
   if (!s || typeof s !== 'object') return d;
   s.version = 1;
   if (!s.products || !Array.isArray((s.products || {}).list)) s.products = d.products;
+  if (s.products.catalogV !== 2) {
+    s.products = { _t: nowMs(), _c: '', list: seedProducts(), catalogV: 2 };
+    catalogUpgraded = true;
+  }
   if (!s.orders || typeof s.orders !== 'object') s.orders = {};
   if (!s.trash || typeof s.trash !== 'object') s.trash = {};
   if (!s.notes || typeof s.notes !== 'object') s.notes = d.notes;
@@ -800,11 +808,11 @@ function renderProducts() {
   var el = $('#prodList');
   var list = state.products.list;
   if (!list.length) { el.innerHTML = '<div class="empty">No products yet. Add your first flavour below.</div>'; return; }
-  var h = '<div class="prod-row prod-head"><div>Flavour</div><div>Size</div><div>Cost</div><div>Price</div><div></div></div>';
+  var h = '<div class="prod-row prod-head"><div>Flavour</div><div>Category</div><div>Cost</div><div>Price</div><div></div></div>';
   list.forEach(function (p) {
     h += '<div class="prod-row" data-pid="' + p.id + '">' +
       '<input data-f="flavour" value="' + esc(p.flavour) + '" placeholder="Flavour">' +
-      '<input data-f="size" value="' + esc(p.size) + '" placeholder="Size">' +
+      '<input data-f="size" value="' + esc(p.size) + '" placeholder="Category">' +
       '<input data-f="cost" inputmode="decimal" value="' + p.cost + '">' +
       '<input data-f="price" inputmode="decimal" value="' + p.price + '">' +
       '<button class="x-btn" data-del="' + p.id + '" aria-label="Remove">&#10005;</button></div>';
@@ -832,7 +840,7 @@ $('#prodList').addEventListener('click', function (e) {
   } else if (e.target.dataset && e.target.dataset.no) { renderProducts(); }
 });
 $('#addProdBtn').addEventListener('click', function () {
-  state.products.list.push({ id: uid(), flavour: '', size: 'Box of 6', cost: 0, price: 0 });
+  state.products.list.push({ id: uid(), flavour: '', size: '', cost: 3.50, price: 0 });
   touchProducts(); renderProducts(); fillItemSelect();
   var rows = $all('#prodList [data-pid]'); var last = rows[rows.length - 1];
   if (last) last.querySelector('input').focus();
@@ -1132,7 +1140,16 @@ function stopCard(o) {
   h += '<div class="small" style="font-weight:700; text-transform:uppercase; letter-spacing:.05em; margin-top:12px">Picked up</div>';
   if (!o.delivery.pickups.length) h += '<div class="small" style="padding:6px 0">Nothing picked up at this stop.</div>';
   o.delivery.pickups.forEach(function (pu) {
-    h += '<div class="d-row"><div><input data-pud="' + pu.id + '" value="' + esc(pu.desc) + '" placeholder="What was picked up"></div>' +
+    var opts = '<option value="">Choose item...</option>';
+    var found = false;
+    state.products.list.forEach(function (p) {
+      if (!p.flavour) return;
+      var selp = pu.productId === p.id;
+      if (selp) found = true;
+      opts += '<option value="' + p.id + '"' + (selp ? ' selected' : '') + '>' + esc(p.flavour) + ' - ' + esc(p.size) + '</option>';
+    });
+    if (!found && pu.desc) opts += '<option value="__keep" selected>' + esc(pu.desc) + '</option>';
+    h += '<div class="d-row"><div><select data-pusel="' + pu.id + '">' + opts + '</select></div>' +
       '<div class="qty-ctl"><button data-puq="-1" data-pu="' + pu.id + '">-</button>' +
       '<input data-puqi="' + pu.id + '" inputmode="numeric" value="' + pu.qty + '">' +
       '<button data-puq="1" data-pu="' + pu.id + '">+</button></div></div>';
@@ -1179,7 +1196,7 @@ $('#stopsList').addEventListener('click', function (e) {
     var pu = o.delivery.pickups.find(function (p) { return p.id === d.pu; });
     if (pu) { pu.qty = Math.max(0, num(pu.qty) + num(d.puq)); touchOrder(o); renderDelivery(); }
   } else if (d.addpu) {
-    o.delivery.pickups.push({ id: uid(), desc: '', qty: 1 });
+    o.delivery.pickups.push({ id: uid(), productId: '', desc: '', qty: 1 });
     touchOrder(o); renderDelivery();
   } else if (d.pm) {
     o.delivery.method = d.pm;
@@ -1197,7 +1214,13 @@ $('#stopsList').addEventListener('change', function (e) {
   var d = e.target.dataset || {};
   if (d.dqi) { o.delivery.qty[d.dqi] = Math.max(0, num(e.target.value)); touchOrder(o); }
   else if (d.puqi) { var pu = o.delivery.pickups.find(function (p) { return p.id === d.puqi; }); if (pu) { pu.qty = Math.max(0, num(e.target.value)); touchOrder(o); } }
-  else if (d.pud) { var pu2 = o.delivery.pickups.find(function (p) { return p.id === d.pud; }); if (pu2) { pu2.desc = e.target.value; touchOrder(o); } }
+  else if (d.pusel) {
+    var pu2 = o.delivery.pickups.find(function (p) { return p.id === d.pusel; });
+    if (pu2 && e.target.value && e.target.value !== '__keep') {
+      var pp = state.products.list.find(function (p) { return p.id === e.target.value; });
+      if (pp) { pu2.productId = pp.id; pu2.desc = pp.flavour + ' (' + pp.size + ')'; touchOrder(o); }
+    }
+  }
   else if (d.coll) { o.delivery.collected = num(e.target.value); touchOrder(o); }
   else if (d.dnotes) { o.delivery.notes = e.target.value; touchOrder(o); }
 });
@@ -1597,6 +1620,7 @@ $('#tabs').addEventListener('click', function (e) {
 });
 
 /* ---------- boot ---------- */
+if (catalogUpgraded) { state.products._c = clientId; markDirty('products'); }
 saveLocal();          // persists seeded defaults on first run
 renderAll();
 go('order');
