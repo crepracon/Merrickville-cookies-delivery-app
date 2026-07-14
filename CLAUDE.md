@@ -84,3 +84,15 @@ Fonts only from Google Fonts CDN. Deployed via GitHub Pages.
   The window.print() paths are untouched and still full-page.
 - Phomemo app friction (printer picker, extra taps) is the Phomemo app's own
   UX - not reachable from a web page. Do not promise fixing it.
+
+## v1.4.0 - Merrickville Cookies rebrand
+- White + blue scheme. NOTE: CSS var names still say --gold but hold BLUE
+  values (#2166CB family) - renaming vars app-wide was riskier than the
+  mismatch. Landmine for future edits: --gold means "brand accent", not gold.
+- migrate() auto-upgrades business name 'Cookie Shop' -> 'Merrickville
+  Cookies' so existing devices/Firebase pick up the rename without manual edit.
+- Placeholder cookie logo: .logo (header), .p-logo (print), drawCookieLogo()
+  (canvas - drawn shapes, prints black on thermal). When the real logo image
+  arrives: swap header/.p-logo content for an <img>/background, and replace
+  drawCookieLogo with drawImage of a preloaded Image (beware: canvas needs the
+  image loaded BEFORE drawing - use img.onload or decode()).
