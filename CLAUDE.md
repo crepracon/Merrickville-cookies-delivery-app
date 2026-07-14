@@ -114,3 +114,12 @@ Fonts only from Google Fonts CDN. Deployed via GitHub Pages.
 
 ## Session docs
 - STATUS.md = product scope, decisions, roadmap. Update BOTH files every push.
+
+## Receipt half-sheet printing (v1.6.0)
+- printReceipt() sets #printArea class "receipt-half"; printInvoice() clears it.
+  The @media print rule rotates the 5.5in-wide receipt 90deg onto the top half
+  of the portrait letter page. INTENTIONAL: the browser print PREVIEW shows it
+  sideways - the paper output is a cuttable 5.5x8.5 receipt. Do not "fix" the
+  sideways preview. On-screen app view is unaffected (printArea hidden on screen).
+- If receipt content ever overflows 7.6in of length it clips (overflow:hidden).
+  Long orders may need a font shrink or two-column items in receipt-half mode.
