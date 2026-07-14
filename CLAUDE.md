@@ -96,3 +96,14 @@ Fonts only from Google Fonts CDN. Deployed via GitHub Pages.
   arrives: swap header/.p-logo content for an <img>/background, and replace
   drawCookieLogo with drawImage of a preloaded Image (beware: canvas needs the
   image loaded BEFORE drawing - use img.onload or decode()).
+
+## v1.5.0 - real catalog + pickup dropdowns
+- Catalog model: size field now means CATEGORY (4" cookies, 7" cookies,
+  Cookie dough, Buttertarts, Fudge); flavour = variant. 17 seeded items,
+  cost 3.50, PRICE 0 (owner fills sell prices in Products tab).
+- products.catalogV=2 flag: migrate() wipes any pre-v2 catalog and reseeds,
+  then boot pushes it (catalogUpgraded flag). Bump catalogV for any future
+  forced reseed - do NOT reuse 2.
+- Pickups: {id, productId, desc, qty}; rendered as a catalog <select>
+  (data-pusel). Legacy free-text pickups survive as a '__keep' option.
+  Receipts keep reading pu.desc, so nothing downstream changed.
