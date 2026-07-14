@@ -3,19 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Cookie Shop</title>
+<title>Merrickville Cookies</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#F3EAD9; --surface:#FFFDF8; --surface2:#FAF3E6;
-  --ink:#33241A; --muted:#8C7A6B; --line:#E3D5BF;
-  --gold:#B5722A; --gold-deep:#8A4F1D; --gold-soft:#F1DFC4;
+  --bg:#F4F8FC; --surface:#FFFFFF; --surface2:#EFF5FB;
+  --ink:#14283F; --muted:#5B7290; --line:#D8E4F0;
+  --gold:#2166CB; --gold-deep:#174E9E; --gold-soft:#DEEBFA;
   --green:#3E7A4E; --green-soft:#E2EEE4;
   --red:#B03A2E; --red-soft:#F5E0DD;
   --blue:#3D6A8A; --blue-soft:#DFEAF2;
-  --radius:14px; --shadow:0 1px 3px rgba(51,36,26,.10), 0 4px 14px rgba(51,36,26,.06);
+  --radius:14px; --shadow:0 1px 3px rgba(20,40,63,.10), 0 4px 14px rgba(20,40,63,.06);
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
@@ -39,26 +39,32 @@ label{font-size:12.5px; font-weight:600; color:var(--muted); display:block; marg
 
 /* ---------- header ---------- */
 header{
-  background:var(--ink); color:#F6EDDD; padding:12px 16px 10px;
+  background:var(--surface); color:var(--ink); padding:10px 16px 9px;
   display:flex; align-items:center; gap:10px;
   position:sticky; top:0; z-index:40;
+  border-bottom:3px solid var(--gold);
 }
-header .brand{font-family:'Fraunces',serif; font-weight:700; font-size:20px; letter-spacing:.01em}
+header .brand{font-family:'Fraunces',serif; font-weight:700; font-size:19px; letter-spacing:.01em; color:var(--gold-deep); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.logo{
+  width:34px; height:34px; border-radius:50%; flex:none;
+  background:var(--gold-soft); border:2px solid var(--gold);
+  display:flex; align-items:center; justify-content:center; font-size:17px;
+}
 header .spacer{flex:1}
 .sync-chip{
   display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600;
-  background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.18);
-  color:#F6EDDD; border-radius:999px; padding:5px 11px;
+  background:var(--gold-soft); border:1px solid var(--line);
+  color:var(--ink); border-radius:999px; padding:5px 11px;
 }
 .sync-chip .dot{width:8px; height:8px; border-radius:50%; background:#999; flex:none}
-.sync-chip.ok .dot{background:#7FC98B}
+.sync-chip.ok .dot{background:#2E9E4F}
 .sync-chip.busy .dot{background:#E8B252; animation:pulse 1s infinite}
-.sync-chip.err .dot{background:#E07B6E}
-.sync-chip.off .dot{background:#8C7A6B}
+.sync-chip.err .dot{background:#D8564A}
+.sync-chip.off .dot{background:#8CA2BC}
 @keyframes pulse{50%{opacity:.4}}
 .icon-btn{
-  background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.18);
-  color:#F6EDDD; border-radius:10px; padding:6px 10px; font-size:15px;
+  background:var(--surface2); border:1px solid var(--line);
+  color:var(--ink); border-radius:10px; padding:6px 10px; font-size:15px;
 }
 
 /* ---------- customer bar ---------- */
@@ -110,11 +116,11 @@ section[data-tab].active{display:block}
 }
 .sum .label{font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.06em}
 .sum .val{font-family:'Fraunces',serif; font-weight:700; font-size:21px; margin-top:2px}
-.sum.grand{background:var(--ink); border-color:var(--ink); color:#F6EDDD}
+.sum.grand{background:var(--ink); border-color:var(--ink); color:#EAF2FC}
 .sum.grand::after{background:radial-gradient(circle at 6px -2px, transparent 6px, var(--ink) 6.5px); background-size:16px 8px; background-repeat:repeat-x}
-.sum.grand .label{color:#CDBBA3}
+.sum.grand .label{color:#9FBEE4}
 .sum .sub{font-size:11px; color:var(--muted)}
-.sum.grand .sub{color:#CDBBA3}
+.sum.grand .sub{color:#9FBEE4}
 
 /* ---------- buttons ---------- */
 .btn{
@@ -122,7 +128,7 @@ section[data-tab].active{display:block}
   background:var(--surface2); color:var(--ink); border:1px solid var(--line);
 }
 .btn.primary{background:var(--gold); border-color:var(--gold); color:#fff}
-.btn.dark{background:var(--ink); border-color:var(--ink); color:#F6EDDD}
+.btn.dark{background:var(--ink); border-color:var(--ink); color:#EAF2FC}
 .btn.danger{background:var(--red-soft); border-color:#DDB6B0; color:var(--red)}
 .btn.green{background:var(--green); border-color:var(--green); color:#fff}
 .btn.block{width:100%}
@@ -189,7 +195,7 @@ section[data-tab].active{display:block}
 .seg{display:flex; border:1px solid var(--line); border-radius:10px; overflow:hidden; margin-top:4px}
 .seg button{flex:1; border:none; background:var(--surface); padding:9px 4px; font-size:13px; font-weight:600; color:var(--muted); border-right:1px solid var(--line)}
 .seg button:last-child{border-right:none}
-.seg button.on{background:var(--ink); color:#F6EDDD}
+.seg button.on{background:var(--ink); color:#EAF2FC}
 
 /* ---------- collapsible ---------- */
 details.panel{border:1px solid var(--line); border-radius:12px; background:var(--surface); margin-bottom:14px}
@@ -226,7 +232,7 @@ nav.tabs button.on .ico{transform:translateY(-1px)}
 /* ---------- toast / modal ---------- */
 #toasts{position:fixed; bottom:calc(84px + env(safe-area-inset-bottom)); left:0; right:0; display:flex; flex-direction:column; align-items:center; gap:8px; z-index:90; pointer-events:none}
 .toast{
-  background:var(--ink); color:#F6EDDD; border-radius:999px; padding:9px 18px;
+  background:var(--ink); color:#EAF2FC; border-radius:999px; padding:9px 18px;
   font-size:13.5px; font-weight:600; box-shadow:var(--shadow); animation:rise .2s ease-out;
   max-width:88vw;
 }
@@ -255,25 +261,27 @@ nav.tabs button.on .ico{transform:translateY(-1px)}
 @media print{
   body{background:#fff; padding:0}
   body > *:not(#printArea){display:none !important}
-  #printArea{display:block; font-family:'Outfit',system-ui,sans-serif; color:#1c1109; padding:24px; max-width:720px; margin:0 auto}
+  #printArea{display:block; font-family:'Outfit',system-ui,sans-serif; color:#14283F; padding:24px; max-width:720px; margin:0 auto}
   #printArea h1{font-family:'Fraunces',serif; font-size:26px; margin:0}
-  #printArea .p-head{display:flex; justify-content:space-between; align-items:flex-start; border-bottom:3px solid #1c1109; padding-bottom:12px; margin-bottom:16px}
-  #printArea .p-tag{font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:#8A4F1D; font-weight:700}
+  #printArea .p-head{display:flex; justify-content:space-between; align-items:flex-start; border-bottom:3px solid #14283F; padding-bottom:12px; margin-bottom:16px}
+  #printArea .p-logo{width:56px;height:56px;border-radius:50%;border:3px solid #174E9E;background:#DEEBFA;display:flex;align-items:center;justify-content:center;font-size:28px;flex:none}
+  #printArea .p-tag{font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:#174E9E; font-weight:700}
   #printArea table{width:100%; border-collapse:collapse; margin:12px 0}
-  #printArea th{font-size:11px; text-transform:uppercase; letter-spacing:.06em; text-align:left; border-bottom:2px solid #1c1109; padding:6px 4px}
-  #printArea td{padding:7px 4px; border-bottom:1px dashed #c9b89f; font-size:14px}
+  #printArea th{font-size:11px; text-transform:uppercase; letter-spacing:.06em; text-align:left; border-bottom:2px solid #14283F; padding:6px 4px}
+  #printArea td{padding:7px 4px; border-bottom:1px dashed #B9CCE3; font-size:14px}
   #printArea .tot td{border-bottom:none; padding:3px 4px}
-  #printArea .grand td{font-family:'Fraunces',serif; font-weight:700; font-size:18px; border-top:2px solid #1c1109; padding-top:8px}
-  #printArea .p-foot{margin-top:22px; font-size:12px; color:#6b5a48; text-align:center; border-top:1px dashed #c9b89f; padding-top:12px}
+  #printArea .grand td{font-family:'Fraunces',serif; font-weight:700; font-size:18px; border-top:2px solid #14283F; padding-top:8px}
+  #printArea .p-foot{margin-top:22px; font-size:12px; color:#5B7290; text-align:center; border-top:1px dashed #B9CCE3; padding-top:12px}
   #printArea .p-two{display:flex; justify-content:space-between; gap:24px; font-size:13.5px}
-  #printArea .p-badge{display:inline-block; border:2px solid #1c1109; border-radius:6px; padding:2px 10px; font-weight:700; font-size:12px; letter-spacing:.05em; text-transform:uppercase}
+  #printArea .p-badge{display:inline-block; border:2px solid #14283F; border-radius:6px; padding:2px 10px; font-weight:700; font-size:12px; letter-spacing:.05em; text-transform:uppercase}
 }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="brand" id="brandName">Cookie Shop</div>
+  <div class="logo">&#127850;</div>
+  <div class="brand" id="brandName">Merrickville Cookies</div>
   <div class="spacer"></div>
   <button class="sync-chip off" id="syncChip" title="Sync status - tap for settings">
     <span class="dot"></span><span id="syncLabel">Local only</span>
@@ -490,7 +498,7 @@ function defaultState() {
     orders: {},           // id -> order
     trash: {},            // id -> deletedAt (tombstones so deletes sync safely)
     notes: { _t: 0, _c: '', products: '', order: '', orders: '', delivery: '' },
-    settings: { _t: 0, _c: '', business: 'Cookie Shop', hst: HST_DEFAULT }
+    settings: { _t: 0, _c: '', business: 'Merrickville Cookies', hst: HST_DEFAULT }
   };
 }
 function blankOrder() {
@@ -517,7 +525,7 @@ function migrate(s) {
     if (typeof s.notes[k] !== 'string') s.notes[k] = '';
   });
   if (!s.settings || typeof s.settings !== 'object') s.settings = d.settings;
-  if (typeof s.settings.business !== 'string') s.settings.business = 'Cookie Shop';
+  if (typeof s.settings.business !== 'string' || s.settings.business === 'Cookie Shop') s.settings.business = 'Merrickville Cookies';
   if (!isFinite(s.settings.hst)) s.settings.hst = HST_DEFAULT;
   Object.keys(s.orders).forEach(function (id) {
     var o = s.orders[id]; if (!o || typeof o !== 'object') { delete s.orders[id]; return; }
@@ -772,7 +780,7 @@ function calc(o) {
    RENDER
    ===================================================== */
 function renderAll() {
-  $('#brandName').textContent = state.settings.business || 'Cookie Shop';
+  $('#brandName').textContent = state.settings.business || 'Merrickville Cookies';
   renderCustBar();
   renderProducts();
   renderOrderBuilder();
@@ -1211,8 +1219,9 @@ function renderNotes() {
    PRINT - invoice + driver receipt (browser print/PDF)
    ===================================================== */
 function printDocHead(title, o) {
-  return '<div class="p-head"><div><h1>' + esc(state.settings.business || 'Cookie Shop') + '</h1>' +
-    '<div class="p-tag">' + title + '</div></div>' +
+  return '<div class="p-head"><div style="display:flex;gap:14px;align-items:center">' +
+    '<div class="p-logo">&#127850;</div><div><h1>' + esc(state.settings.business || 'Merrickville Cookies') + '</h1>' +
+    '<div class="p-tag">' + title + '</div></div></div>' +
     '<div style="text-align:right"><div style="font-family:Fraunces,serif;font-weight:700;font-size:17px">' + esc(o.num) + '</div>' +
     '<div style="font-size:13px">' + fmtDate(title === 'Delivery receipt' ? (o.delivery.deliveredAt || nowMs()) : o.createdAt) + '</div></div></div>';
 }
@@ -1226,7 +1235,7 @@ function printInvoice(o) {
     '<br><span class="p-badge">' + (o.paid ? 'Paid' : PLAN_LABELS[o.plan]) + '</span></div></div>';
   h += '<table><tr><th>Item</th><th style="text-align:center">Qty</th><th style="text-align:right">Price</th><th style="text-align:right">Total</th></tr>';
   o.items.forEach(function (it) {
-    h += '<tr><td>' + esc(it.flavour) + (it.size ? ' <span style="color:#6b5a48">(' + esc(it.size) + ')</span>' : '') + '</td>' +
+    h += '<tr><td>' + esc(it.flavour) + (it.size ? ' <span style="color:#5B7290">(' + esc(it.size) + ')</span>' : '') + '</td>' +
       '<td style="text-align:center">' + it.qty + '</td>' +
       '<td style="text-align:right">' + money(it.price) + '</td>' +
       '<td style="text-align:right">' + money(num(it.qty) * num(it.price)) + '</td></tr>';
@@ -1251,7 +1260,7 @@ function printReceipt(o) {
   h += '<table><tr><th>Dropped off</th><th style="text-align:center">Ordered</th><th style="text-align:center">Delivered</th></tr>';
   o.items.forEach(function (it) {
     var dq = (o.delivery.qty[it.lineId] === undefined) ? it.qty : o.delivery.qty[it.lineId];
-    h += '<tr><td>' + esc(it.flavour) + (it.size ? ' <span style="color:#6b5a48">(' + esc(it.size) + ')</span>' : '') + '</td>' +
+    h += '<tr><td>' + esc(it.flavour) + (it.size ? ' <span style="color:#5B7290">(' + esc(it.size) + ')</span>' : '') + '</td>' +
       '<td style="text-align:center">' + it.qty + '</td><td style="text-align:center"><b>' + dq + '</b></td></tr>';
   });
   h += '</table>';
@@ -1275,7 +1284,7 @@ function printReceipt(o) {
 function receiptText(o) {
   var c = calc(o);
   var lines = [];
-  lines.push((state.settings.business || 'Cookie Shop') + ' - Delivery receipt ' + o.num);
+  lines.push((state.settings.business || 'Merrickville Cookies') + ' - Delivery receipt ' + o.num);
   lines.push('Customer: ' + o.customer.name);
   lines.push('');
   lines.push('Dropped off:');
@@ -1296,6 +1305,17 @@ function receiptText(o) {
 /* Phomemo one-tap: render receipt to a hi-res PNG and hand it to the share
    sheet - the Phomemo app accepts shared images and prints them directly.
    200dpi on 8.5in wide paper = 1700px canvas. Pure canvas, no libraries. */
+function drawCookieLogo(x, cx, cy, r) {
+  x.save();
+  x.beginPath(); x.arc(cx, cy, r, 0, Math.PI * 2);
+  x.lineWidth = Math.max(4, r * 0.14); x.strokeStyle = '#14283F'; x.stroke();
+  x.fillStyle = '#14283F';
+  var chips = [[-0.35, -0.3], [0.3, -0.35], [0.02, 0.06], [-0.32, 0.34], [0.36, 0.3]];
+  chips.forEach(function (p) {
+    x.beginPath(); x.arc(cx + p[0] * r, cy + p[1] * r, r * 0.13, 0, Math.PI * 2); x.fill();
+  });
+  x.restore();
+}
 function receiptCanvas(o) {
   /* Compact layout: ~half the paper of v1.1. Height grows only as needed. */
   var c = calc(o);
@@ -1328,8 +1348,9 @@ function receiptCanvas(o) {
     if (line) { x.fillText(line, M, y); y += lh; }
   }
   function hr(th) { x.fillRect(M, y, innerW, th || 3); y += (th || 3) + 24; }
-  // header: business left, receipt num + date right, one band
-  f(52, true); x.fillText(fit(state.settings.business || 'Cookie Shop', innerW - 640), M, y);
+  // header: logo + business left, receipt num + date right, one band
+  drawCookieLogo(x, M + 34, y - 16, 34);
+  f(52, true); x.fillText(fit(state.settings.business || 'Merrickville Cookies', innerW - 740), M + 88, y);
   x.textAlign = 'right';
   f(34, true); x.fillText('RECEIPT ' + o.num, W - M, y - 26);
   f(28, false); x.fillStyle = '#444444'; x.fillText(fmtDate(o.delivery.deliveredAt || nowMs()), W - M, y + 8);
@@ -1421,8 +1442,9 @@ function invoiceCanvas(o) {
     if (line) { x.fillText(line, M, y); y += lh; }
   }
   function hr(th) { x.fillRect(M, y, innerW, th || 3); y += (th || 3) + 24; }
-  // header band
-  f(52, true); x.fillText(fit(state.settings.business || 'Cookie Shop', innerW - 640), M, y);
+  // header band: logo + business
+  drawCookieLogo(x, M + 34, y - 16, 34);
+  f(52, true); x.fillText(fit(state.settings.business || 'Merrickville Cookies', innerW - 740), M + 88, y);
   x.textAlign = 'right';
   f(34, true); x.fillText('INVOICE ' + o.num, W - M, y - 26);
   f(28, false); x.fillStyle = '#444444'; x.fillText(fmtDate(o.createdAt), W - M, y + 8);
@@ -1545,7 +1567,7 @@ function openSettings() {
     '<button class="btn" id="s-close">Close</button></div>'
   );
   $('#s-save').addEventListener('click', function () {
-    state.settings.business = $('#s-biz').value.trim() || 'Cookie Shop';
+    state.settings.business = $('#s-biz').value.trim() || 'Merrickville Cookies';
     var hst = num($('#s-hst').value);
     state.settings.hst = (hst > 0 && hst < 100) ? hst : HST_DEFAULT;
     touchSettings();
