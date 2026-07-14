@@ -67,3 +67,12 @@ Fonts only from Google Fonts CDN. Deployed via GitHub Pages.
   assert wiring + graceful degradation. Manual visual check needed on print changes.
 - Direct Web Bluetooth printing: parked. Android-Chrome-only, M832 BLE protocol
   undocumented, would need reverse-engineering against the physical printer.
+
+## v1.2.0
+- Phomemo path now covers INVOICES too: "Phomemo invoice" button on New Order
+  tab (uses draft) + "Phomemo" action on saved order cards -> invoiceCanvas ->
+  shareCanvasPng. shareCanvasPng is the single share/download helper for all
+  canvas documents.
+- LANDMINE (hit during this change): replacing a function opening line with a
+  multi-function block orphans the old body below it. After any str_replace on
+  a function signature, grep for the old body and remove it, then node --check.
