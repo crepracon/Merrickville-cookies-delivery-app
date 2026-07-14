@@ -76,3 +76,11 @@ Fonts only from Google Fonts CDN. Deployed via GitHub Pages.
 - LANDMINE (hit during this change): replacing a function opening line with a
   multi-function block orphans the old body below it. After any str_replace on
   a function signature, grep for the old body and remove it, then node --check.
+
+## v1.3.0 - compact Phomemo layouts
+- receiptCanvas/invoiceCanvas rewritten compact: same 1700px width (8.5in at
+  200dpi) but height is content-driven, min 900/1000px (~4.5-5in). On roll
+  paper the M832 only feeds what the image needs, roughly halving paper use.
+  The window.print() paths are untouched and still full-page.
+- Phomemo app friction (printer picker, extra taps) is the Phomemo app's own
+  UX - not reachable from a web page. Do not promise fixing it.
