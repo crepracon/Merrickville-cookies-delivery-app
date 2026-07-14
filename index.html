@@ -1086,7 +1086,8 @@ function renderDelivery() {
         '<span class="amount money">' + money(c.total) + '</span></div>' +
         '<div class="meta">Delivered ' + fmtDate(o.delivery.deliveredAt) +
         (o.delivery.method ? ' &middot; ' + esc(o.delivery.method) : '') + '</div>' +
-        '<div class="order-actions"><button class="btn" data-receipt="' + o.id + '">Receipt</button></div></div>';
+        '<div class="order-actions"><button class="btn" data-receipt="' + o.id + '">Receipt</button>' +
+        '<button class="btn dark" data-phomemo="' + o.id + '">&#128438; Phomemo</button></div></div>';
     });
   }
   el.innerHTML = h;
@@ -1140,6 +1141,7 @@ function stopCard(o) {
     '<div class="btn-row">' +
     '<button class="btn" data-receipt="' + o.id + '">&#128424; Print receipt</button>' +
     '<button class="btn" data-share="' + o.id + '">&#128228; Send receipt</button>' +
+    '<button class="btn dark" data-phomemo="' + o.id + '">&#128438; Phomemo receipt</button>' +
     '<button class="btn green" data-delivered="1">&#10003; Mark delivered</button>' +
     '</div></div></div>';
   return h;
@@ -1152,6 +1154,7 @@ $('#stopsList').addEventListener('click', function (e) {
   // receipt buttons can live outside stop cards (recently delivered)
   if (e.target.dataset && e.target.dataset.receipt) { var ro = state.orders[e.target.dataset.receipt]; if (ro) printReceipt(ro); return; }
   if (e.target.dataset && e.target.dataset.share) { var so = state.orders[e.target.dataset.share]; if (so) shareReceipt(so); return; }
+  if (e.target.dataset && e.target.dataset.phomemo) { var po = state.orders[e.target.dataset.phomemo]; if (po) sharePhomemo(po); return; }
   var o = stopOrder(e); if (!o) return;
   var d = e.target.dataset || {};
   if (d.dq) {
@@ -1285,6 +1288,124 @@ function receiptText(o) {
   lines.push('Payment: ' + (o.delivery.method || PLAN_LABELS[o.plan]) + (num(o.delivery.collected) ? ' - collected ' + money(o.delivery.collected) : ''));
   lines.push(o.paid ? 'Status: PAID' : 'Balance: ' + money(Math.max(0, c.total - num(o.delivery.collected))));
   return lines.join('\n');
+}
+/* Phomemo one-tap: render receipt to a hi-res PNG and hand it to the share
+   sheet - the Phomemo app accepts shared images and prints them directly.
+   200dpi on 8.5in wide paper = 1700px canvas. Pure canvas, no libraries. */
+function receiptCanvas(o) {
+  var c = calc(o);
+  var W = 1700, M = 120, y = 170;
+  var innerW = W - M * 2;
+  // rough height estimate, grown to at least US-letter ratio so it prints as one page
+  var estH = 1150 + (o.items.length * 66) + (o.delivery.pickups.length * 66) +
+    (o.delivery.notes ? 220 : 0) + (o.customer.address ? 60 : 0);
+  var H = Math.max(2200, estH);
+  var cv = document.createElement('canvas');
+  cv.width = W; cv.height = H;
+  var x = cv.getContext('2d');
+  if (!x) return null;
+  x.fillStyle = '#ffffff'; x.fillRect(0, 0, W, H);
+  x.fillStyle = '#000000'; x.textBaseline = 'alphabetic';
+  function f(size, bold) { x.font = (bold ? '700 ' : '400 ') + size + 'px Arial, sans-serif'; }
+  function fit(t, maxW) {
+    t = String(t == null ? '' : t);
+    if (x.measureText(t).width <= maxW) return t;
+    while (t.length > 1 && x.measureText(t + '...').width > maxW) t = t.slice(0, -1);
+    return t + '...';
+  }
+  function wrap(t, size, maxW, lh) {
+    f(size, false);
+    var words = String(t).split(/\s+/), line = '';
+    words.forEach(function (w) {
+      var test = line ? line + ' ' + w : w;
+      if (x.measureText(test).width > maxW && line) {
+        x.fillText(line, M, y); y += lh; line = w;
+      } else line = test;
+    });
+    if (line) { x.fillText(line, M, y); y += lh; }
+  }
+  function hr(th) { x.fillRect(M, y, innerW, th || 4); y += (th || 4) + 34; }
+  // header
+  f(78, true); x.fillText(fit(state.settings.business || 'Cookie Shop', innerW), M, y); y += 56;
+  f(38, false); x.fillStyle = '#444444';
+  x.fillText('DELIVERY RECEIPT', M, y);
+  x.textAlign = 'right';
+  x.fillText(o.num + '  -  ' + fmtDate(o.delivery.deliveredAt || nowMs()), W - M, y);
+  x.textAlign = 'left'; x.fillStyle = '#000000'; y += 44;
+  hr(6);
+  // customer
+  f(44, true); x.fillText(fit(o.customer.name, innerW), M, y); y += 52;
+  if (o.customer.address) { f(38, false); x.fillStyle = '#333333'; x.fillText(fit(o.customer.address, innerW), M, y); x.fillStyle = '#000000'; y += 56; }
+  y += 10; hr(3);
+  // items: dropped off
+  var colOrd = W - M - 340, colDel = W - M;
+  f(36, true);
+  x.fillText('DROPPED OFF', M, y);
+  x.textAlign = 'right';
+  x.fillText('Ordered', colOrd, y); x.fillText('Delivered', colDel, y);
+  x.textAlign = 'left'; y += 30; hr(3);
+  o.items.forEach(function (it) {
+    var dq = (o.delivery.qty[it.lineId] === undefined) ? it.qty : o.delivery.qty[it.lineId];
+    f(42, false);
+    x.fillText(fit(it.flavour + (it.size ? ' (' + it.size + ')' : ''), innerW - 460), M, y);
+    x.textAlign = 'right';
+    x.fillText(String(it.qty), colOrd, y);
+    f(42, true); x.fillText(String(dq), colDel, y);
+    x.textAlign = 'left'; y += 62;
+  });
+  // pickups
+  if (o.delivery.pickups.length) {
+    y += 16; f(36, true); x.fillText('PICKED UP', M, y); y += 30; hr(3);
+    o.delivery.pickups.forEach(function (pu) {
+      f(42, false);
+      x.fillText(fit(pu.desc || 'Item', innerW - 300), M, y);
+      x.textAlign = 'right'; x.fillText(String(pu.qty), colDel, y); x.textAlign = 'left';
+      y += 62;
+    });
+  }
+  y += 20; hr(6);
+  // totals
+  function tot(lbl, val, big) {
+    f(big ? 54 : 42, big);
+    x.fillText(lbl, M, y);
+    x.textAlign = 'right'; x.fillText(val, W - M, y); x.textAlign = 'left';
+    y += big ? 78 : 60;
+  }
+  tot('Order total (incl. ' + state.settings.hst + '% HST)', money(c.total), false);
+  tot('Payment', o.delivery.method || PLAN_LABELS[o.plan], false);
+  tot('Collected', money(o.delivery.collected), false);
+  var bal = Math.max(0, c.total - (o.paid ? c.total : num(o.delivery.collected)));
+  tot(o.paid || bal === 0 ? 'PAID - thank you!' : 'Balance due', money(bal), true);
+  // notes
+  if (o.delivery.notes) {
+    y += 6; f(36, true); x.fillText('NOTES', M, y); y += 48;
+    x.fillStyle = '#333333'; wrap(o.delivery.notes, 38, innerW, 50); x.fillStyle = '#000000';
+  }
+  // footer
+  y += 40; hr(3);
+  f(34, false); x.fillStyle = '#555555'; x.textAlign = 'center';
+  x.fillText('Free delivery, always. Thank you!', W / 2, y);
+  x.textAlign = 'left'; x.fillStyle = '#000000';
+  return cv;
+}
+function sharePhomemo(o) {
+  var cv = receiptCanvas(o);
+  if (!cv) { toast('This browser cannot draw the receipt image', true); return; }
+  cv.toBlob(function (blob) {
+    if (!blob) { toast('Could not create the receipt image', true); return; }
+    var file;
+    try { file = new File([blob], 'receipt-' + o.num + '.png', { type: 'image/png' }); } catch (e) { file = null; }
+    if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+      navigator.share({ files: [file], title: 'Receipt ' + o.num }).catch(function () { });
+    } else {
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'receipt-' + o.num + '.png';
+      a.click();
+      setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+      toast('Receipt image saved - open it in the Phomemo app');
+    }
+  }, 'image/png');
 }
 function shareReceipt(o) {
   var txt = receiptText(o);
