@@ -355,6 +355,7 @@ nav.tabs button.on .ico{transform:translateY(-1px)}
   <div class="btn-row">
     <button class="btn dark block" id="saveOrderBtn">Save order</button>
     <button class="btn primary block" id="printInvoiceBtn">Print / Save PDF invoice</button>
+    <button class="btn block" id="phomemoInvoiceBtn">&#128438; Phomemo invoice</button>
   </div>
   <p class="small right" id="editingHint" style="margin-top:6px"></p>
 
@@ -984,6 +985,7 @@ function renderOrders() {
       '<button class="btn" data-act="load">Open</button>' +
       '<button class="btn" data-act="dup">Duplicate</button>' +
       '<button class="btn" data-act="invoice">Invoice</button>' +
+      '<button class="btn" data-act="phomemo">Phomemo</button>' +
       '<button class="btn danger" data-act="del">Delete</button>' +
       '</div></div>';
   });
@@ -1019,6 +1021,8 @@ $('#ordersList').addEventListener('click', function (e) {
     renderOrderBuilder(); go('order'); toast('Duplicated as ' + draft.num);
   } else if (act === 'invoice') {
     printInvoice(o);
+  } else if (act === 'phomemo') {
+    sharePhomemoInvoice(o);
   } else if (act === 'del') {
     var actions = card.querySelector('.order-actions');
     actions.innerHTML = '<div class="inline-confirm">Delete ' + esc(o.num) + '? ' +
@@ -1388,24 +1392,131 @@ function receiptCanvas(o) {
   x.textAlign = 'left'; x.fillStyle = '#000000';
   return cv;
 }
-function sharePhomemo(o) {
-  var cv = receiptCanvas(o);
-  if (!cv) { toast('This browser cannot draw the receipt image', true); return; }
+function invoiceCanvas(o) {
+  var c = calc(o);
+  var W = 1700, M = 120, y = 170;
+  var innerW = W - M * 2;
+  var estH = 1350 + (o.items.length * 66) + (o.notes ? 240 : 0);
+  var H = Math.max(2200, estH);
+  var cv = document.createElement('canvas');
+  cv.width = W; cv.height = H;
+  var x = cv.getContext('2d');
+  if (!x) return null;
+  x.fillStyle = '#ffffff'; x.fillRect(0, 0, W, H);
+  x.fillStyle = '#000000'; x.textBaseline = 'alphabetic';
+  function f(size, bold) { x.font = (bold ? '700 ' : '400 ') + size + 'px Arial, sans-serif'; }
+  function fit(t, maxW) {
+    t = String(t == null ? '' : t);
+    if (x.measureText(t).width <= maxW) return t;
+    while (t.length > 1 && x.measureText(t + '...').width > maxW) t = t.slice(0, -1);
+    return t + '...';
+  }
+  function wrap(t, size, maxW, lh) {
+    f(size, false);
+    var words = String(t).split(/\s+/), line = '';
+    words.forEach(function (w) {
+      var test = line ? line + ' ' + w : w;
+      if (x.measureText(test).width > maxW && line) { x.fillText(line, M, y); y += lh; line = w; }
+      else line = test;
+    });
+    if (line) { x.fillText(line, M, y); y += lh; }
+  }
+  function hr(th) { x.fillRect(M, y, innerW, th || 4); y += (th || 4) + 34; }
+  // header
+  f(78, true); x.fillText(fit(state.settings.business || 'Cookie Shop', innerW - 620), M, y);
+  x.textAlign = 'right'; f(44, true); x.fillText(o.num, W - M, y - 8);
+  f(36, false); x.fillStyle = '#444444'; x.fillText(fmtDate(o.createdAt), W - M, y + 40);
+  x.textAlign = 'left'; y += 56;
+  f(38, false); x.fillText('INVOICE', M, y); x.fillStyle = '#000000'; y += 44;
+  hr(6);
+  // bill to / deliver to
+  var yTop = y;
+  f(34, true); x.fillStyle = '#555555'; x.fillText('BILL TO', M, y); x.fillStyle = '#000000'; y += 48;
+  f(42, true); x.fillText(fit(o.customer.name, innerW / 2), M, y); y += 50;
+  f(38, false);
+  if (o.customer.phone) { x.fillText(fit(o.customer.phone, innerW / 2), M, y); y += 48; }
+  if (o.customer.email) { x.fillText(fit(o.customer.email, innerW / 2), M, y); y += 48; }
+  var yLeft = y;
+  y = yTop; x.textAlign = 'right';
+  f(34, true); x.fillStyle = '#555555'; x.fillText('DELIVER TO', W - M, y); x.fillStyle = '#000000'; y += 48;
+  f(38, false); x.fillText(fit(o.customer.address || 'Pickup', innerW / 2), W - M, y); y += 58;
+  // payment badge
+  f(34, true);
+  var badge = o.paid ? 'PAID' : PLAN_LABELS[o.plan].toUpperCase();
+  var bw = x.measureText(badge).width + 44;
+  x.strokeStyle = '#000000'; x.lineWidth = 4;
+  x.strokeRect(W - M - bw, y - 36, bw, 56);
+  x.fillText(badge, W - M - 22, y + 4);
+  x.textAlign = 'left';
+  y = Math.max(yLeft, y + 60) + 10;
+  hr(3);
+  // items table
+  var colQty = W - M - 760, colPrice = W - M - 380, colTotal = W - M;
+  f(34, true); x.fillStyle = '#555555';
+  x.fillText('ITEM', M, y);
+  x.textAlign = 'right';
+  x.fillText('QTY', colQty, y); x.fillText('PRICE', colPrice, y); x.fillText('TOTAL', colTotal, y);
+  x.textAlign = 'left'; x.fillStyle = '#000000'; y += 28; hr(3);
+  o.items.forEach(function (it) {
+    f(42, false);
+    x.fillText(fit(it.flavour + (it.size ? ' (' + it.size + ')' : ''), innerW - 900), M, y);
+    x.textAlign = 'right';
+    x.fillText(String(it.qty), colQty, y);
+    x.fillText(money(it.price), colPrice, y);
+    x.fillText(money(num(it.qty) * num(it.price)), colTotal, y);
+    x.textAlign = 'left'; y += 62;
+  });
+  y += 20; hr(6);
+  // totals, right aligned block
+  function tot(lbl, val, big) {
+    f(big ? 54 : 42, big);
+    x.textAlign = 'right';
+    x.fillText(lbl, colPrice, y); x.fillText(val, colTotal, y);
+    x.textAlign = 'left';
+    y += big ? 80 : 58;
+  }
+  tot('Subtotal', money(c.subtotal), false);
+  if (c.disc) tot('Discount', '- ' + money(c.disc), false);
+  tot('Delivery', 'FREE', false);
+  tot('HST (' + state.settings.hst + '%)', money(c.hst), false);
+  tot('Total (CAD)', money(c.total), true);
+  // notes
+  if (o.notes) {
+    y += 6; f(36, true); x.fillText('NOTES', M, y); y += 48;
+    x.fillStyle = '#333333'; wrap(o.notes, 38, innerW, 50); x.fillStyle = '#000000';
+  }
+  y += 40; hr(3);
+  f(34, false); x.fillStyle = '#555555'; x.textAlign = 'center';
+  x.fillText('Thank you! Free delivery, always. HST included as shown.', W / 2, y);
+  x.textAlign = 'left'; x.fillStyle = '#000000';
+  return cv;
+}
+function shareCanvasPng(cv, name) {
   cv.toBlob(function (blob) {
-    if (!blob) { toast('Could not create the receipt image', true); return; }
+    if (!blob) { toast('Could not create the image', true); return; }
     var file;
-    try { file = new File([blob], 'receipt-' + o.num + '.png', { type: 'image/png' }); } catch (e) { file = null; }
+    try { file = new File([blob], name + '.png', { type: 'image/png' }); } catch (e) { file = null; }
     if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
-      navigator.share({ files: [file], title: 'Receipt ' + o.num }).catch(function () { });
+      navigator.share({ files: [file], title: name }).catch(function () { });
     } else {
       var a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = 'receipt-' + o.num + '.png';
+      a.download = name + '.png';
       a.click();
       setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
-      toast('Receipt image saved - open it in the Phomemo app');
+      toast('Image saved - open it in the Phomemo app');
     }
   }, 'image/png');
+}
+function sharePhomemo(o) {
+  var cv = receiptCanvas(o);
+  if (!cv) { toast('This browser cannot draw the receipt image', true); return; }
+  shareCanvasPng(cv, 'receipt-' + o.num);
+}
+function sharePhomemoInvoice(o) {
+  var cv = invoiceCanvas(o);
+  if (!cv) { toast('This browser cannot draw the invoice image', true); return; }
+  shareCanvasPng(cv, 'invoice-' + o.num);
 }
 function shareReceipt(o) {
   var txt = receiptText(o);
@@ -1415,6 +1526,10 @@ function shareReceipt(o) {
     navigator.clipboard.writeText(txt).then(function () { toast('Receipt copied - paste into a text or email'); });
   } else { toast('Sharing not available on this browser', true); }
 }
+$('#phomemoInvoiceBtn').addEventListener('click', function () {
+  if (!draft.items.length) { toast('Add items before printing an invoice', true); return; }
+  sharePhomemoInvoice(draft);
+});
 $('#printInvoiceBtn').addEventListener('click', function () {
   if (!draft.items.length) { toast('Add items before printing an invoice', true); return; }
   printInvoice(draft);
