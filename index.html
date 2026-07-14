@@ -489,16 +489,16 @@ function seedProducts() {
   var list = [];
   cats.forEach(function (cat) {
     variants.forEach(function (v) {
-      list.push({ id: uid(), flavour: v, size: cat, cost: 3.50, price: 0 });
+      list.push({ id: uid(), flavour: v, size: cat, cost: 2.25, price: 3.50 });
     });
   });
-  list.push({ id: uid(), flavour: 'Chocolate Mint', size: 'Fudge', cost: 3.50, price: 0 });
+  list.push({ id: uid(), flavour: 'Chocolate Mint', size: 'Fudge', cost: 2.25, price: 3.50 });
   return list;
 }
 function defaultState() {
   return {
     version: 1,
-    products: { _t: nowMs(), _c: '', list: seedProducts(), catalogV: 2 },
+    products: { _t: nowMs(), _c: '', list: seedProducts(), catalogV: 3 },
     orders: {},           // id -> order
     trash: {},            // id -> deletedAt (tombstones so deletes sync safely)
     notes: { _t: 0, _c: '', products: '', order: '', orders: '', delivery: '' },
@@ -522,8 +522,13 @@ function migrate(s) {
   if (!s || typeof s !== 'object') return d;
   s.version = 1;
   if (!s.products || !Array.isArray((s.products || {}).list)) s.products = d.products;
-  if (s.products.catalogV !== 2) {
-    s.products = { _t: nowMs(), _c: '', list: seedProducts(), catalogV: 2 };
+  if (s.products.catalogV !== 2 && s.products.catalogV !== 3) {
+    s.products = { _t: nowMs(), _c: '', list: seedProducts(), catalogV: 3 };
+    catalogUpgraded = true;
+  }
+  if (s.products.catalogV === 2) {
+    s.products.list.forEach(function (p) { p.cost = 2.25; p.price = 3.50; });
+    s.products.catalogV = 3; s.products._t = nowMs(); s.products._c = '';
     catalogUpgraded = true;
   }
   if (!s.orders || typeof s.orders !== 'object') s.orders = {};
@@ -840,7 +845,7 @@ $('#prodList').addEventListener('click', function (e) {
   } else if (e.target.dataset && e.target.dataset.no) { renderProducts(); }
 });
 $('#addProdBtn').addEventListener('click', function () {
-  state.products.list.push({ id: uid(), flavour: '', size: '', cost: 3.50, price: 0 });
+  state.products.list.push({ id: uid(), flavour: '', size: '', cost: 2.25, price: 3.50 });
   touchProducts(); renderProducts(); fillItemSelect();
   var rows = $all('#prodList [data-pid]'); var last = rows[rows.length - 1];
   if (last) last.querySelector('input').focus();
