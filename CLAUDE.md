@@ -52,3 +52,18 @@ Fonts only from Google Fonts CDN. Deployed via GitHub Pages.
 1. Extract <script> block, `node --check`
 2. `node smoke.js` (jsdom, 30 assertions)
 3. Push via GitHub API, tag version
+
+## Phomemo M832 printing (v1.1.0)
+- "Phomemo receipt" button renders the receipt to a 1700px-wide canvas PNG
+  (receiptCanvas) and shares it via navigator.share files (sharePhomemo).
+  The Phomemo app accepts shared images and prints them - this skips the
+  save-PDF-then-upload dance. Fallback when file-share unsupported: downloads
+  the PNG and toasts to open it in the Phomemo app.
+- The M832 is NOT AirPrint/Mopria: it never appears in OS print dialogs.
+  Do not chase that; image-share to the Phomemo app is the supported path.
+- Canvas uses Arial/sans-serif on purpose - web fonts may not be loaded when
+  drawing and canvas does not wait for them.
+- jsdom has no 2d canvas: receiptCanvas returns null there; smoke tests only
+  assert wiring + graceful degradation. Manual visual check needed on print changes.
+- Direct Web Bluetooth printing: parked. Android-Chrome-only, M832 BLE protocol
+  undocumented, would need reverse-engineering against the physical printer.
