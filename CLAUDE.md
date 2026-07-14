@@ -111,3 +111,6 @@ Fonts only from Google Fonts CDN. Deployed via GitHub Pages.
 ## v1.5.1
 - catalogV=3: price 3.50 / cost 2.25. v2->v3 is an IN-PLACE field update
   (preserves owner edits and added products); pre-v2 reseeds directly to v3.
+
+## Session docs
+- STATUS.md = product scope, decisions, roadmap. Update BOTH files every push.
