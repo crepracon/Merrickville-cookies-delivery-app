@@ -107,3 +107,7 @@ Fonts only from Google Fonts CDN. Deployed via GitHub Pages.
 - Pickups: {id, productId, desc, qty}; rendered as a catalog <select>
   (data-pusel). Legacy free-text pickups survive as a '__keep' option.
   Receipts keep reading pu.desc, so nothing downstream changed.
+
+## v1.5.1
+- catalogV=3: price 3.50 / cost 2.25. v2->v3 is an IN-PLACE field update
+  (preserves owner edits and added products); pre-v2 reseeds directly to v3.
