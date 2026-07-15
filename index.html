@@ -13,6 +13,7 @@
   --ink:#14283F; --muted:#5B7290; --line:#D8E4F0;
   --gold:#2166CB; --gold-deep:#174E9E; --gold-soft:#DEEBFA;
   --green:#3E7A4E; --green-soft:#E2EEE4;
+  --cookie-pattern:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='170' height='200' viewBox='0 0 170 200'%3E%3Cpath d='M124.1 62.1 L106.3 83.0 L79.5 93.8 L56.7 76.2 L42.0 52.1 L52.0 25.0 L76.5 12.6 L104.5 12.0 L120.2 35.2 Z' fill='none' stroke='%23DFEBF7' stroke-width='6' stroke-linejoin='round'/%3E%3Ccircle cx='83.5' cy='50.7' r='5' fill='%23DFEBF7'/%3E%3Ccircle cx='93.6' cy='55.5' r='5' fill='%23DFEBF7'/%3E%3Ccircle cx='86.4' cy='47.3' r='5' fill='%23DFEBF7'/%3E%3Ccircle cx='87.5' cy='65.0' r='5' fill='%23DFEBF7'/%3E%3Ccircle cx='98.2' cy='45.5' r='5' fill='%23DFEBF7'/%3E%3Ccircle cx='66.2' cy='64.3' r='5' fill='%23DFEBF7'/%3E%3Ccircle cx='104.9' cy='56.0' r='5' fill='%23DFEBF7'/%3E%3Cpath d='M15.3 189.3 L-13.9 191.0 L-40.0 174.3 L-41.9 143.6 L-28.2 117.9 L-0.9 106.5 L24.8 119.1 L42.0 141.7 L38.5 171.1 Z' fill='none' stroke='%23DFEBF7' stroke-width='6' stroke-linejoin='round'/%3E%3Ccircle cx='0.6' cy='147.8' r='5' fill='%23DFEBF7'/%3E%3Ccircle cx='-0.7' cy='152.1' r='5' fill='%23DFEBF7'/%3E%3Ccircle cx='6.1' cy='134.4' r='5' fill='%23DFEBF7'/%3E%3Ccircle cx='23.0' cy='156.2' r='5' fill='%23DFEBF7'/%3E%3Ccircle cx='15.4' cy='146.5' r='5' fill='%23DFEBF7'/%3E%3Ccircle cx='-2.9' cy='147.5' r='5' fill='%23DFEBF7'/%3E%3Ccircle cx='12.7' cy='151.2' r='5' fill='%23DFEBF7'/%3E%3Cpath d='M185.3 189.3 L156.1 191.0 L130.0 174.3 L128.1 143.6 L141.8 117.9 L169.1 106.5 L194.8 119.1 L212.0 141.7 L208.5 171.1 Z' fill='none' stroke='%23DFEBF7' stroke-width='6' stroke-linejoin='round'/%3E%3Ccircle cx='170.6' cy='147.8' r='5' fill='%23DFEBF7'/%3E%3Ccircle cx='169.3' cy='152.1' r='5' fill='%23DFEBF7'/%3E%3Ccircle cx='176.1' cy='134.4' r='5' fill='%23DFEBF7'/%3E%3Ccircle cx='193.0' cy='156.2' r='5' fill='%23DFEBF7'/%3E%3Ccircle cx='185.4' cy='146.5' r='5' fill='%23DFEBF7'/%3E%3Ccircle cx='167.1' cy='147.5' r='5' fill='%23DFEBF7'/%3E%3Ccircle cx='182.7' cy='151.2' r='5' fill='%23DFEBF7'/%3E%3C/svg%3E");
   --red:#B03A2E; --red-soft:#F5E0DD;
   --blue:#3D6A8A; --blue-soft:#DFEAF2;
   --radius:14px; --shadow:0 1px 3px rgba(20,40,63,.10), 0 4px 14px rgba(20,40,63,.06);
@@ -20,7 +21,7 @@
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
 body{
-  background:var(--bg); color:var(--ink);
+  background:var(--bg) var(--cookie-pattern) repeat; color:var(--ink);
   font-family:'Outfit',system-ui,sans-serif; font-size:15px; line-height:1.45;
   padding-bottom:calc(76px + env(safe-area-inset-bottom));
 }
@@ -46,9 +47,7 @@ header{
 }
 header .brand{font-family:'Fraunces',serif; font-weight:700; font-size:19px; letter-spacing:.01em; color:var(--gold-deep); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 .logo{
-  width:34px; height:34px; border-radius:50%; flex:none;
-  background:var(--gold-soft); border:2px solid var(--gold);
-  display:flex; align-items:center; justify-content:center; font-size:17px;
+  width:38px; height:38px; flex:none; object-fit:contain;
 }
 header .spacer{flex:1}
 .sync-chip{
@@ -115,7 +114,7 @@ section[data-tab].active{display:block}
   background-size:16px 8px; background-repeat:repeat-x;
 }
 .sum .label{font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.06em}
-.sum .val{font-family:'Fraunces',serif; font-weight:700; font-size:21px; margin-top:2px}
+.sum .val{font-family:'Outfit',sans-serif; font-weight:700; font-size:22px; margin-top:2px; letter-spacing:-.01em}
 .sum.grand{background:var(--ink); border-color:var(--ink); color:#EAF2FC}
 .sum.grand::after{background:radial-gradient(circle at 6px -2px, transparent 6px, var(--ink) 6.5px); background-size:16px 8px; background-repeat:repeat-x}
 .sum.grand .label{color:#9FBEE4}
@@ -151,23 +150,50 @@ section[data-tab].active{display:block}
 
 /* ---------- products list ---------- */
 .prod-row{
-  display:grid; grid-template-columns:1.4fr 1fr 84px 84px 30px; gap:8px; align-items:center;
+  display:grid; grid-template-columns:1fr 84px 84px 30px; gap:8px; align-items:center;
   padding:7px 0; border-bottom:1px dashed var(--line);
 }
 .prod-head{font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); border-bottom:1px solid var(--line)}
 .prod-row input{padding:7px 8px; font-size:14px}
 @media (max-width:560px){
-  .prod-row{grid-template-columns:1.3fr .9fr 70px 70px 26px; gap:6px}
+  .prod-row{grid-template-columns:1fr 70px 70px 26px; gap:6px}
   .prod-row input{padding:6px 6px; font-size:13.5px}
 }
 
 /* ---------- order cards ---------- */
+/* Product tap tiles - sized for a driver using this one-handed on a phone.
+   auto-fit keeps 2-up on phones, 3+ up on wider screens. */
+.tile-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin-bottom:12px}
+.tile{
+  border:2px solid var(--line); border-radius:14px; background:var(--surface);
+  padding:10px 8px 8px; display:flex; flex-direction:column; gap:8px; min-height:118px;
+}
+.tile.on{border-color:var(--gold); background:var(--gold-soft)}
+.tile .t-name{font-weight:700; font-size:15px; line-height:1.2; text-align:center; flex:1;
+  display:flex; align-items:center; justify-content:center}
+.tile .t-price{font-size:11.5px; color:var(--muted); text-align:center; margin-top:-4px}
+.tile .t-ctl{display:flex; align-items:center; gap:6px}
+.tile .t-ctl button{
+  width:44px; height:44px; flex:none; border-radius:10px; border:1px solid var(--line);
+  background:var(--surface2); font-size:22px; font-weight:700; line-height:1; color:var(--ink);
+  display:flex; align-items:center; justify-content:center;
+}
+.tile .t-ctl button:active{background:var(--gold-soft)}
+.tile .t-ctl input{
+  flex:1; min-width:0; height:44px; text-align:center; font-size:18px; font-weight:700;
+  padding:0 2px; border-radius:10px;
+}
 .order-card{border:1px solid var(--line); border-radius:12px; padding:12px; margin-bottom:10px; background:var(--surface)}
-.order-card .top{display:flex; align-items:baseline; gap:8px; flex-wrap:wrap}
-.order-card .num{font-family:'Fraunces',serif; font-weight:700; font-size:16px}
+.order-card .top{display:flex; align-items:center; gap:8px; flex-wrap:wrap; cursor:pointer; user-select:none}
+.order-card .num{font-family:'Outfit',sans-serif; font-weight:700; font-size:16px; letter-spacing:.01em}
 .order-card .cname{font-weight:600}
 .order-card .meta{font-size:12.5px; color:var(--muted); margin-top:2px}
-.order-card .amount{margin-left:auto; font-family:'Fraunces',serif; font-weight:700; font-size:17px}
+.order-card .amount{margin-left:auto; font-family:'Outfit',sans-serif; font-weight:700; font-size:17px}
+/* Collapsed by default: name + number only. Body reveals on tap. */
+.order-card .caret{flex:none; width:18px; color:var(--muted); font-size:12px; transition:transform .15s}
+.order-card.open .caret{transform:rotate(90deg)}
+.order-card .card-body{display:none; margin-top:8px}
+.order-card.open .card-body{display:block}
 .pill{
   display:inline-block; font-size:11.5px; font-weight:700; border-radius:999px; padding:3px 10px;
   letter-spacing:.02em;
@@ -296,7 +322,7 @@ nav.tabs button.on .ico{transform:translateY(-1px)}
 <body>
 
 <header>
-  <div class="logo">&#127850;</div>
+  <img class="logo" id="brandLogo" alt="Merrickville Cookies logo">
   <div class="brand" id="brandName">Merrickville Cookies</div>
   <div class="spacer"></div>
   <button class="sync-chip off" id="syncChip" title="Sync status - tap for settings">
@@ -348,9 +374,10 @@ nav.tabs button.on .ico{transform:translateY(-1px)}
 
   <div class="card">
     <h2>&#128722; Items</h2>
+    <label>Tap to add</label>
+    <div class="tile-grid" id="tileGrid"></div>
     <div id="lineItems"></div>
-    <label for="addItemSel">Add item</label>
-    <select id="addItemSel"><option value="">Choose a product...</option></select>
+    <button class="btn" id="addCustomBtn" style="margin-top:10px">+ Custom item</button>
   </div>
 
   <div class="card">
@@ -404,6 +431,17 @@ nav.tabs button.on .ico{transform:translateY(-1px)}
       </div>
       <input type="file" id="importFile" accept="application/json" style="display:none">
       <p class="small">Import replaces products and merges orders (newest wins).</p>
+      <hr style="border:none; border-top:1px solid var(--line); margin:14px 0">
+      <label>QuickBooks export</label>
+      <div class="row">
+        <div><label for="qbFrom" class="small">From</label><input id="qbFrom" type="date"></div>
+        <div><label for="qbTo" class="small">To</label><input id="qbTo" type="date"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn primary" id="qbExportBtn">Export invoices CSV</button>
+      </div>
+      <p class="small">Leave dates blank for all orders. Opens in Excel; import via
+        QuickBooks Online &gt; Settings &gt; Import Data &gt; Invoices.</p>
     </div>
   </details>
   <details class="panel note-box">
@@ -452,6 +490,8 @@ var LS_CLIENT = 'cookie-client-id';
 var LS_DIRTY = 'cookie-dirty-v1';
 var catalogUpgraded = false;
 var HST_DEFAULT = 13;
+var LOGO_MARK = 'data:image/png;base64,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';
+var CATALOG_NAMES = ['7" cookies', '4" cookies', 'Buttertarts', 'Fudge', 'Cookie dough'];
 var STATUSES = ['Ordered', 'In Production', 'Out for Delivery', 'Delivered'];
 var PLAN_LABELS = { 'prepaid': 'Prepaid', 'cod-cash': 'Cash on delivery', 'cod-et': 'E-transfer on delivery' };
 
@@ -476,11 +516,33 @@ function fmtDate(ms) {
   return d.toLocaleDateString('en-CA', { year: 'numeric', month: 'short', day: 'numeric' }) +
     ' ' + d.toLocaleTimeString('en-CA', { hour: 'numeric', minute: '2-digit' });
 }
-function orderNum() {
-  var d = new Date();
-  var ymd = String(d.getFullYear()).slice(2) +
-    ('0' + (d.getMonth() + 1)).slice(-2) + ('0' + d.getDate()).slice(-2);
-  return 'C' + ymd + '-' + Math.random().toString(36).slice(2, 5).toUpperCase();
+/* Invoice numbers: MC-YYYY-0001, sequence restarts each calendar year.
+   Assigned at SAVE (not draft creation) so abandoned drafts never burn a number.
+   Legacy numbers (C260714-K7X) are ignored by the scan and never rewritten. */
+var NUM_RE = /^MC-(\d{4})-(\d{4,})$/;
+function nextOrderNum() {
+  var yr = String(new Date().getFullYear());
+  var max = 0;
+  Object.keys(state.orders).forEach(function (id) {
+    var m = NUM_RE.exec((state.orders[id] || {}).num || '');
+    if (m && m[1] === yr) { var n = parseInt(m[2], 10); if (n > max) max = n; }
+  });
+  return 'MC-' + yr + '-' + ('000' + (max + 1)).slice(-4);
+}
+function numTaken(n, exceptId) {
+  return Object.keys(state.orders).some(function (id) {
+    return id !== exceptId && (state.orders[id] || {}).num === n;
+  });
+}
+/* Two devices offline at once can both claim the same number. Bump on save
+   if it is already taken locally; the loser gets the next free one. */
+function claimOrderNum(exceptId) {
+  var n = nextOrderNum(), guard = 0;
+  while (numTaken(n, exceptId) && guard++ < 500) {
+    var m = NUM_RE.exec(n);
+    n = 'MC-' + m[1] + '-' + ('000' + (parseInt(m[2], 10) + 1)).slice(-4);
+  }
+  return n;
 }
 
 /* ---------- toast + modal (never alert/confirm/prompt) ---------- */
@@ -500,21 +562,21 @@ $('#modal-back').addEventListener('click', function (e) { if (e.target === this)
 
 /* ---------- default state + migration ---------- */
 function seedProducts() {
-  var variants = ['Chocolate Chip', 'Cookies and Cream', 'Garbage Can', 'Caramel'];
-  var cats = ['4" cookies', '7" cookies', 'Cookie dough', 'Buttertarts'];
-  var list = [];
-  cats.forEach(function (cat) {
-    variants.forEach(function (v) {
-      list.push({ id: uid(), flavour: v, size: cat, cost: 2.25, price: 3.50 });
-    });
+  // catalogV 4: five flat products, no flavour variants.
+  return CATALOG_NAMES.map(function (n) {
+    return { id: uid(), name: n, cost: 2.25, price: 3.50 };
   });
-  list.push({ id: uid(), flavour: 'Chocolate Mint', size: 'Fudge', cost: 2.25, price: 3.50 });
-  return list;
+}
+/* Label for an order line. New lines carry .name; legacy lines (catalogV<=3)
+   carry .flavour + .size, so fall back to those and old orders still print. */
+function itemLabel(it) {
+  if (it.name) return it.name;
+  return [it.flavour, it.size].filter(Boolean).join(' - ') || 'Item';
 }
 function defaultState() {
   return {
     version: 1,
-    products: { _t: nowMs(), _c: '', list: seedProducts(), catalogV: 3 },
+    products: { _t: nowMs(), _c: '', list: seedProducts(), catalogV: 4 },
     orders: {},           // id -> order
     trash: {},            // id -> deletedAt (tombstones so deletes sync safely)
     notes: { _t: 0, _c: '', products: '', order: '', orders: '', delivery: '' },
@@ -523,7 +585,7 @@ function defaultState() {
 }
 function blankOrder() {
   return {
-    id: uid(), num: orderNum(), createdAt: nowMs(), updatedAt: 0, _c: '',
+    id: uid(), num: '', createdAt: nowMs(), updatedAt: 0, _c: '',
     customer: { name: '', phone: '', email: '', address: '' },
     items: [],            // {lineId, productId, flavour, size, qty, price, cost}
     discType: 'none', discVal: 0,
@@ -538,13 +600,11 @@ function migrate(s) {
   if (!s || typeof s !== 'object') return d;
   s.version = 1;
   if (!s.products || !Array.isArray((s.products || {}).list)) s.products = d.products;
-  if (s.products.catalogV !== 2 && s.products.catalogV !== 3) {
-    s.products = { _t: nowMs(), _c: '', list: seedProducts(), catalogV: 3 };
-    catalogUpgraded = true;
-  }
-  if (s.products.catalogV === 2) {
-    s.products.list.forEach(function (p) { p.cost = 2.25; p.price = 3.50; });
-    s.products.catalogV = 3; s.products._t = nowMs(); s.products._c = '';
+  // catalogV 4: collapse flavour variants down to five flat products.
+  // Any older/unknown catalog is replaced wholesale. Saved orders keep their
+  // own item snapshots, so history is never rewritten by this.
+  if (s.products.catalogV !== 4) {
+    s.products = { _t: nowMs(), _c: '', list: seedProducts(), catalogV: 4 };
     catalogUpgraded = true;
   }
   if (!s.orders || typeof s.orders !== 'object') s.orders = {};
@@ -809,6 +869,7 @@ function calc(o) {
    RENDER
    ===================================================== */
 function renderAll() {
+  $('#brandLogo').src = LOGO_MARK;
   $('#brandName').textContent = state.settings.business || 'Merrickville Cookies';
   renderCustBar();
   renderProducts();
@@ -828,12 +889,11 @@ function renderCustBar() {
 function renderProducts() {
   var el = $('#prodList');
   var list = state.products.list;
-  if (!list.length) { el.innerHTML = '<div class="empty">No products yet. Add your first flavour below.</div>'; return; }
-  var h = '<div class="prod-row prod-head"><div>Flavour</div><div>Category</div><div>Cost</div><div>Price</div><div></div></div>';
+  if (!list.length) { el.innerHTML = '<div class="empty">No products yet. Add one below.</div>'; return; }
+  var h = '<div class="prod-row prod-head"><div>Product</div><div>Cost</div><div>Price</div><div></div></div>';
   list.forEach(function (p) {
     h += '<div class="prod-row" data-pid="' + p.id + '">' +
-      '<input data-f="flavour" value="' + esc(p.flavour) + '" placeholder="Flavour">' +
-      '<input data-f="size" value="' + esc(p.size) + '" placeholder="Category">' +
+      '<input data-f="name" value="' + esc(p.name || '') + '" placeholder="Product name">' +
       '<input data-f="cost" inputmode="decimal" value="' + p.cost + '">' +
       '<input data-f="price" inputmode="decimal" value="' + p.price + '">' +
       '<button class="x-btn" data-del="' + p.id + '" aria-label="Remove">&#10005;</button></div>';
@@ -845,7 +905,7 @@ $('#prodList').addEventListener('change', function (e) {
   var p = state.products.list.find(function (x) { return x.id === row.dataset.pid; }); if (!p) return;
   var f = e.target.dataset.f;
   p[f] = (f === 'cost' || f === 'price') ? num(e.target.value) : e.target.value;
-  touchProducts(); fillItemSelect(); renderOrderBuilder();
+  touchProducts(); renderTiles(); renderOrderBuilder();
 });
 $('#prodList').addEventListener('click', function (e) {
   var id = e.target.dataset && e.target.dataset.del; if (!id) return;
@@ -857,26 +917,49 @@ $('#prodList').addEventListener('click', function (e) {
 $('#prodList').addEventListener('click', function (e) {
   if (e.target.dataset && e.target.dataset.yes) {
     state.products.list = state.products.list.filter(function (p) { return p.id !== e.target.dataset.yes; });
-    touchProducts(); renderProducts(); fillItemSelect(); toast('Product removed');
+    touchProducts(); renderProducts(); renderTiles(); toast('Product removed');
   } else if (e.target.dataset && e.target.dataset.no) { renderProducts(); }
 });
 $('#addProdBtn').addEventListener('click', function () {
-  state.products.list.push({ id: uid(), flavour: '', size: '', cost: 2.25, price: 3.50 });
-  touchProducts(); renderProducts(); fillItemSelect();
+  state.products.list.push({ id: uid(), name: '', cost: 2.25, price: 3.50 });
+  touchProducts(); renderProducts(); renderTiles();
   var rows = $all('#prodList [data-pid]'); var last = rows[rows.length - 1];
   if (last) last.querySelector('input').focus();
 });
 
 /* ---------- order builder ---------- */
-function fillItemSelect() {
-  var sel = $('#addItemSel');
-  var h = '<option value="">Choose a product...</option>';
+/* Tap tiles double as the qty control: the tile IS the line for that product,
+   so the driver never opens a dropdown. Qty mirrors draft.items. */
+function renderTiles() {
+  var h = '';
   state.products.list.forEach(function (p) {
-    if (!p.flavour) return;
-    h += '<option value="' + p.id + '">' + esc(p.flavour) + ' - ' + esc(p.size) + ' (' + money(p.price) + ')</option>';
+    if (!p.name) return;
+    var ex = draft.items.find(function (i) { return i.productId === p.id; });
+    var q = ex ? num(ex.qty) : 0;
+    h += '<div class="tile' + (q > 0 ? ' on' : '') + '" data-pid="' + p.id + '">' +
+      '<div class="t-name">' + esc(p.name) + '</div>' +
+      '<div class="t-price">' + money(p.price) + ' ea</div>' +
+      '<div class="t-ctl">' +
+      '<button data-tq="-1" aria-label="One less ' + esc(p.name) + '">-</button>' +
+      '<input data-tqi inputmode="numeric" value="' + q + '" aria-label="Quantity of ' + esc(p.name) + '">' +
+      '<button data-tq="1" aria-label="One more ' + esc(p.name) + '">+</button>' +
+      '</div></div>';
   });
-  h += '<option value="__custom">Custom item...</option>';
-  sel.innerHTML = h;
+  $('#tileGrid').innerHTML = h;
+}
+/* Single place that reconciles a product tile qty into draft.items. */
+function setProductQty(pid, q) {
+  q = Math.max(0, Math.round(num(q)));
+  var p = state.products.list.find(function (x) { return x.id === pid; });
+  if (!p) return;
+  var ex = draft.items.find(function (i) { return i.productId === pid; });
+  if (q === 0) {
+    if (ex) draft.items = draft.items.filter(function (i) { return i !== ex; });
+  } else if (ex) {
+    ex.qty = q;
+  } else {
+    draft.items.push({ lineId: uid(), productId: p.id, name: p.name, qty: q, price: num(p.price), cost: num(p.cost) });
+  }
 }
 function renderOrderBuilder() {
   // summaries
@@ -902,12 +985,12 @@ function renderOrderBuilder() {
   // line items
   var el = $('#lineItems');
   if (!draft.items.length) {
-    el.innerHTML = '<div class="empty">No items yet. Pick a product below to start the order.</div>';
+    el.innerHTML = '<div class="empty">No items yet. Tap a product above to start the order.</div>';
   } else {
     var h = '';
     draft.items.forEach(function (it) {
       h += '<div class="item-row" data-line="' + it.lineId + '">' +
-        '<div><div class="name">' + esc(it.flavour) + '</div><div class="size">' + esc(it.size) + '</div></div>' +
+        '<div><div class="name">' + esc(itemLabel(it)) + '</div><div class="size">' + money(num(it.price) * num(it.qty)) + '</div></div>' +
         '<div class="qty-ctl"><button data-q="-1" aria-label="Less">-</button>' +
         '<input data-f="qty" inputmode="numeric" value="' + it.qty + '">' +
         '<button data-q="1" aria-label="More">+</button></div>' +
@@ -920,19 +1003,23 @@ function renderOrderBuilder() {
     ? 'Editing saved order ' + (state.orders[editingId] ? state.orders[editingId].num : '') + ' - saving updates it.'
     : '';
   renderCustBar();
-  fillItemSelect();
+  renderTiles();
 }
-$('#addItemSel').addEventListener('change', function () {
-  var v = this.value; this.value = '';
-  if (!v) return;
-  if (v === '__custom') {
-    draft.items.push({ lineId: uid(), productId: '', flavour: 'Custom item', size: '', qty: 1, price: 0, cost: 0 });
-  } else {
-    var p = state.products.list.find(function (x) { return x.id === v; }); if (!p) return;
-    var ex = draft.items.find(function (i) { return i.productId === v; });
-    if (ex) { ex.qty = num(ex.qty) + 1; }
-    else draft.items.push({ lineId: uid(), productId: p.id, flavour: p.flavour, size: p.size, qty: 1, price: num(p.price), cost: num(p.cost) });
-  }
+$('#tileGrid').addEventListener('click', function (e) {
+  var b = e.target.closest('[data-tq]'); if (!b) return;
+  var tile = b.closest('[data-pid]'); if (!tile) return;
+  var cur = num(tile.querySelector('[data-tqi]').value);
+  setProductQty(tile.dataset.pid, cur + num(b.dataset.tq));
+  renderOrderBuilder();
+});
+$('#tileGrid').addEventListener('change', function (e) {
+  if (!e.target.hasAttribute('data-tqi')) return;
+  var tile = e.target.closest('[data-pid]'); if (!tile) return;
+  setProductQty(tile.dataset.pid, e.target.value);
+  renderOrderBuilder();
+});
+$('#addCustomBtn').addEventListener('click', function () {
+  draft.items.push({ lineId: uid(), productId: '', name: 'Custom item', qty: 1, price: 0, cost: 0 });
   renderOrderBuilder();
 });
 $('#lineItems').addEventListener('click', function (e) {
@@ -976,7 +1063,11 @@ $('#saveOrderBtn').addEventListener('click', function () {
   if (!draft.customer.name.trim()) { toast('Add a customer name first', true); go('order'); $('#c-name').focus(); return; }
   if (!draft.items.length) { toast('Add at least one item', true); return; }
   var o = JSON.parse(JSON.stringify(draft));
-  if (editingId && state.orders[editingId]) { o.id = editingId; o.num = state.orders[editingId].num; o.createdAt = state.orders[editingId].createdAt; }
+  if (editingId && state.orders[editingId]) {
+    o.id = editingId; o.num = state.orders[editingId].num; o.createdAt = state.orders[editingId].createdAt;
+  }
+  if (!o.num) o.num = claimOrderNum(o.id);
+  draft.num = o.num;
   touchOrder(o);
   editingId = o.id;
   renderAll();
@@ -984,11 +1075,14 @@ $('#saveOrderBtn').addEventListener('click', function () {
 });
 
 /* ---------- orders tab ---------- */
+/* Expansion state lives outside the DOM: renderAll() rebuilds the list on every
+   sync, so without this the driver's open card would snap shut under them. */
+var openOrders = {};
 function orderMatches(o, q) {
   if (!q) return true;
   q = q.toLowerCase();
   var hay = [o.num, o.customer.name, o.customer.phone, o.customer.email, o.customer.address]
-    .concat(o.items.map(function (i) { return i.flavour + ' ' + i.size; })).join(' ').toLowerCase();
+    .concat(o.items.map(function (i) { return itemLabel(i); })).join(' ').toLowerCase();
   return hay.indexOf(q) !== -1;
 }
 function renderOrders() {
@@ -1004,10 +1098,12 @@ function renderOrders() {
   var h = '';
   list.forEach(function (o) {
     var c = calc(o);
-    h += '<div class="order-card" data-oid="' + o.id + '">' +
-      '<div class="top"><span class="num">' + esc(o.num) + '</span>' +
+    h += '<div class="order-card' + (openOrders[o.id] ? ' open' : '') + '" data-oid="' + o.id + '">' +
+      '<div class="top" data-toggle="1"><span class="caret">&#9654;</span>' +
+      '<span class="num">' + esc(o.num) + '</span>' +
       '<span class="cname">' + esc(o.customer.name) + '</span>' +
       '<span class="amount money">' + money(c.total) + '</span></div>' +
+      '<div class="card-body">' +
       '<div class="meta">' + fmtDate(o.createdAt) +
       (o.customer.phone ? ' &middot; ' + esc(o.customer.phone) : '') +
       ' &middot; ' + o.items.reduce(function (s, i) { return s + num(i.qty); }, 0) + ' boxes</div>' +
@@ -1024,7 +1120,7 @@ function renderOrders() {
       '<button class="btn" data-act="invoice">Invoice</button>' +
       '<button class="btn" data-act="phomemo">Phomemo</button>' +
       '<button class="btn danger" data-act="del">Delete</button>' +
-      '</div></div>';
+      '</div></div></div>';
   });
   el.innerHTML = h;
 }
@@ -1041,6 +1137,11 @@ $('#ordersList').addEventListener('change', function (e) {
 $('#ordersList').addEventListener('click', function (e) {
   var card = e.target.closest('[data-oid]'); if (!card) return;
   var o = state.orders[card.dataset.oid]; if (!o) return;
+  if (e.target.closest('[data-toggle]')) {
+    openOrders[o.id] = !openOrders[o.id];
+    card.classList.toggle('open', !!openOrders[o.id]);
+    return;
+  }
   if (e.target.hasAttribute('data-paid')) {
     o.paid = !o.paid; touchOrder(o); renderAll(); return;
   }
@@ -1051,11 +1152,11 @@ $('#ordersList').addEventListener('click', function (e) {
     renderOrderBuilder(); go('order'); toast('Order ' + o.num + ' opened for editing');
   } else if (act === 'dup') {
     draft = JSON.parse(JSON.stringify(o));
-    draft.id = uid(); draft.num = orderNum(); draft.createdAt = nowMs(); draft.updatedAt = 0;
+    draft.id = uid(); draft.num = ''; draft.createdAt = nowMs(); draft.updatedAt = 0;
     draft.status = 0; draft.paid = draft.plan === 'prepaid' ? false : false;
     draft.delivery = blankOrder().delivery;
     editingId = null;
-    renderOrderBuilder(); go('order'); toast('Duplicated as ' + draft.num);
+    renderOrderBuilder(); go('order'); toast('Duplicated - save to assign a number');
   } else if (act === 'invoice') {
     printInvoice(o);
   } else if (act === 'phomemo') {
@@ -1069,6 +1170,69 @@ $('#ordersList').addEventListener('click', function (e) {
     if (editingId === o.id) { editingId = null; }
     deleteOrder(o.id); renderAll(); toast('Order deleted');
   } else if (act === 'delno') { renderOrders(); }
+});
+
+/* ---------- QuickBooks CSV export ----------
+   One row per line item; InvoiceNo repeats across rows of the same invoice,
+   which is how QuickBooks Online groups multi-line invoices on import.
+   Discounts are emitted as their own negative line so the invoice total
+   reconciles exactly against calc(). HST is left to QBO's tax code (H) rather
+   than hard-coded as a line, so the office can map it to their own tax setup. */
+function csvCell(v) {
+  v = String(v == null ? '' : v);
+  return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+}
+function ymd(ms) {
+  var d = new Date(ms);
+  return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+}
+function buildQbCsv(from, to) {
+  var cols = ['InvoiceNo', 'Customer', 'InvoiceDate', 'DueDate', 'Item(Product/Service)',
+    'ItemDescription', 'ItemQuantity', 'ItemRate', 'ItemAmount', 'Taxable', 'TaxCode',
+    'BillingAddress', 'Phone', 'Email', 'Memo'];
+  var rows = [cols.join(',')];
+  var list = Object.keys(state.orders).map(function (id) { return state.orders[id]; })
+    .filter(function (o) {
+      if (!o.num) return false;
+      var day = ymd(o.createdAt);
+      if (from && day < from) return false;
+      if (to && day > to) return false;
+      return true;
+    })
+    .sort(function (a, b) { return a.createdAt - b.createdAt; });
+
+  list.forEach(function (o) {
+    var c = calc(o);
+    var memo = [PLAN_LABELS[o.plan] || '', o.paid ? 'PAID' : 'UNPAID', o.notes || '']
+      .filter(Boolean).join(' | ');
+    var base = function (extra) {
+      return [o.num, o.customer.name, ymd(o.createdAt), ymd(o.createdAt)]
+        .concat(extra)
+        .concat([o.customer.address || '', o.customer.phone || '', o.customer.email || '', memo])
+        .map(csvCell).join(',');
+    };
+    o.items.forEach(function (it) {
+      var amt = (num(it.qty) * num(it.price)).toFixed(2);
+      rows.push(base([itemLabel(it), itemLabel(it), num(it.qty), num(it.price).toFixed(2), amt, 'Y', 'H']));
+    });
+    if (c.disc > 0) {
+      rows.push(base(['Discount', 'Order discount', 1, (-c.disc).toFixed(2), (-c.disc).toFixed(2), 'Y', 'H']));
+    }
+  });
+  return { csv: rows.join('\r\n'), count: list.length };
+}
+$('#qbExportBtn').addEventListener('click', function () {
+  var from = $('#qbFrom').value, to = $('#qbTo').value;
+  var r = buildQbCsv(from, to);
+  if (!r.count) { toast('No saved orders in that date range', true); return; }
+  // BOM so Excel opens accented names and the dollar figures correctly
+  var blob = new Blob(['\ufeff' + r.csv], { type: 'text/csv;charset=utf-8;' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'quickbooks-invoices-' + (from || 'all') + '-to-' + (to || 'all') + '.csv';
+  a.click();
+  setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+  toast('Exported ' + r.count + ' invoice' + (r.count === 1 ? '' : 's'));
 });
 
 /* ---------- export / import ---------- */
@@ -1139,7 +1303,7 @@ function stopCard(o) {
   var map = o.customer.address ? 'https://maps.google.com/?q=' + encodeURIComponent(o.customer.address) : '';
   var h = '<div class="stop" data-sid="' + o.id + '">' +
     '<div class="stop-head"><div class="top" style="display:flex;gap:8px;align-items:baseline;flex-wrap:wrap">' +
-    '<span class="num display" style="font-weight:700">' + esc(o.num) + '</span>' +
+    '<span class="num" style="font-weight:700">' + esc(o.num) + '</span>' +
     '<b>' + esc(o.customer.name) + '</b>' +
     '<span style="margin-left:auto" class="pill ' + (o.paid ? 'paid' : 'unpaid') + '">' + (o.paid ? 'PAID' : PLAN_LABELS[o.plan]) + '</span></div>' +
     '<div class="addr">' +
@@ -1151,7 +1315,7 @@ function stopCard(o) {
   h += '<div class="small" style="font-weight:700; text-transform:uppercase; letter-spacing:.05em">Dropped off</div>';
   o.items.forEach(function (it) {
     var dq = (o.delivery.qty[it.lineId] === undefined) ? it.qty : o.delivery.qty[it.lineId];
-    h += '<div class="d-row"><div><div class="lbl">' + esc(it.flavour) + '</div><div class="sub">' + esc(it.size) + ' &middot; ordered ' + it.qty + '</div></div>' +
+    h += '<div class="d-row"><div><div class="lbl">' + esc(itemLabel(it)) + '</div><div class="sub">ordered ' + it.qty + '</div></div>' +
       '<div class="qty-ctl"><button data-dq="-1" data-line="' + it.lineId + '">-</button>' +
       '<input data-dqi="' + it.lineId + '" inputmode="numeric" value="' + dq + '">' +
       '<button data-dq="1" data-line="' + it.lineId + '">+</button></div></div>';
@@ -1164,10 +1328,10 @@ function stopCard(o) {
     var opts = '<option value="">Choose item...</option>';
     var found = false;
     state.products.list.forEach(function (p) {
-      if (!p.flavour) return;
+      if (!p.name) return;
       var selp = pu.productId === p.id;
       if (selp) found = true;
-      opts += '<option value="' + p.id + '"' + (selp ? ' selected' : '') + '>' + esc(p.flavour) + ' - ' + esc(p.size) + '</option>';
+      opts += '<option value="' + p.id + '"' + (selp ? ' selected' : '') + '>' + esc(p.name) + '</option>';
     });
     if (!found && pu.desc) opts += '<option value="__keep" selected>' + esc(pu.desc) + '</option>';
     h += '<div class="d-row"><div><select data-pusel="' + pu.id + '">' + opts + '</select></div>' +
@@ -1239,7 +1403,7 @@ $('#stopsList').addEventListener('change', function (e) {
     var pu2 = o.delivery.pickups.find(function (p) { return p.id === d.pusel; });
     if (pu2 && e.target.value && e.target.value !== '__keep') {
       var pp = state.products.list.find(function (p) { return p.id === e.target.value; });
-      if (pp) { pu2.productId = pp.id; pu2.desc = pp.flavour + ' (' + pp.size + ')'; touchOrder(o); }
+      if (pp) { pu2.productId = pp.id; pu2.desc = pp.name; touchOrder(o); }
     }
   }
   else if (d.coll) { o.delivery.collected = num(e.target.value); touchOrder(o); }
@@ -1266,7 +1430,7 @@ function printDocHead(title, o) {
   return '<div class="p-head"><div style="display:flex;gap:14px;align-items:center">' +
     '<div class="p-logo">&#127850;</div><div><h1>' + esc(state.settings.business || 'Merrickville Cookies') + '</h1>' +
     '<div class="p-tag">' + title + '</div></div></div>' +
-    '<div style="text-align:right"><div style="font-family:Fraunces,serif;font-weight:700;font-size:17px">' + esc(o.num) + '</div>' +
+    '<div style="text-align:right"><div style="font-family:Outfit,sans-serif;font-weight:700;font-size:17px">' + esc(o.num) + '</div>' +
     '<div style="font-size:13px">' + fmtDate(title === 'Delivery receipt' ? (o.delivery.deliveredAt || nowMs()) : o.createdAt) + '</div></div></div>';
 }
 function printInvoice(o) {
@@ -1279,7 +1443,7 @@ function printInvoice(o) {
     '<br><span class="p-badge">' + (o.paid ? 'Paid' : PLAN_LABELS[o.plan]) + '</span></div></div>';
   h += '<table><tr><th>Item</th><th style="text-align:center">Qty</th><th style="text-align:right">Price</th><th style="text-align:right">Total</th></tr>';
   o.items.forEach(function (it) {
-    h += '<tr><td>' + esc(it.flavour) + (it.size ? ' <span style="color:#5B7290">(' + esc(it.size) + ')</span>' : '') + '</td>' +
+    h += '<tr><td>' + esc(itemLabel(it)) + '</td>' +
       '<td style="text-align:center">' + it.qty + '</td>' +
       '<td style="text-align:right">' + money(it.price) + '</td>' +
       '<td style="text-align:right">' + money(num(it.qty) * num(it.price)) + '</td></tr>';
@@ -1305,7 +1469,7 @@ function printReceipt(o) {
   h += '<table><tr><th>Dropped off</th><th style="text-align:center">Ordered</th><th style="text-align:center">Delivered</th></tr>';
   o.items.forEach(function (it) {
     var dq = (o.delivery.qty[it.lineId] === undefined) ? it.qty : o.delivery.qty[it.lineId];
-    h += '<tr><td>' + esc(it.flavour) + (it.size ? ' <span style="color:#5B7290">(' + esc(it.size) + ')</span>' : '') + '</td>' +
+    h += '<tr><td>' + esc(itemLabel(it)) + '</td>' +
       '<td style="text-align:center">' + it.qty + '</td><td style="text-align:center"><b>' + dq + '</b></td></tr>';
   });
   h += '</table>';
@@ -1336,7 +1500,7 @@ function receiptText(o) {
   lines.push('Dropped off:');
   o.items.forEach(function (it) {
     var dq = (o.delivery.qty[it.lineId] === undefined) ? it.qty : o.delivery.qty[it.lineId];
-    lines.push('  ' + dq + ' x ' + it.flavour + (it.size ? ' (' + it.size + ')' : ''));
+    lines.push('  ' + dq + ' x ' + itemLabel(it));
   });
   if (o.delivery.pickups.length) {
     lines.push('Picked up:');
@@ -1419,7 +1583,7 @@ function receiptCanvas(o) {
   o.items.forEach(function (it) {
     var dq = (o.delivery.qty[it.lineId] === undefined) ? it.qty : o.delivery.qty[it.lineId];
     f(32, false);
-    x.fillText(fit(it.flavour + (it.size ? ' (' + it.size + ')' : ''), innerW - 360), M, y);
+    x.fillText(fit(itemLabel(it), innerW - 360), M, y);
     x.textAlign = 'right';
     x.fillText(String(it.qty), colOrd, y);
     f(32, true); x.fillText(String(dq), colDel, y);
@@ -1522,7 +1686,7 @@ function invoiceCanvas(o) {
   x.textAlign = 'left'; x.fillStyle = '#000000'; y += 20; hr(2);
   o.items.forEach(function (it) {
     f(32, false);
-    x.fillText(fit(it.flavour + (it.size ? ' (' + it.size + ')' : ''), innerW - 720), M, y);
+    x.fillText(fit(itemLabel(it), innerW - 720), M, y);
     x.textAlign = 'right';
     x.fillText(String(it.qty), colQty, y);
     x.fillText(money(it.price), colPrice, y);
