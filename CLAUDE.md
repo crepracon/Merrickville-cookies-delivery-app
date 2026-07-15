@@ -123,3 +123,34 @@ Fonts only from Google Fonts CDN. Deployed via GitHub Pages.
   sideways preview. On-screen app view is unaffected (printArea hidden on screen).
 - If receipt content ever overflows 7.6in of length it clips (overflow:hidden).
   Long orders may need a font shrink or two-column items in receipt-half mode.
+
+## v2.0.0 - catalog flattening, numbering, QuickBooks
+- CATALOG v4: five flat products (7" cookies, 4" cookies, Buttertarts, Fudge,
+  Cookie dough). NO flavour variants. Products are {id,name,cost,price}.
+  Order line items are {lineId,productId,name,qty,price,cost}.
+- LANDMINE: orders saved before v2 have items with .flavour + .size and NO .name.
+  ALWAYS render line items through itemLabel(it) - never it.flavour directly, or
+  old invoices print blank. itemLabel() falls back to flavour+size.
+- Invoice numbers: MC-YYYY-0001, sequence resets each calendar year, assigned in
+  claimOrderNum() at SAVE time (not draft creation) so abandoned drafts don't burn
+  numbers. NUM_RE only matches the new format, so legacy C260714-K7X numbers are
+  ignored by the scan and never rewritten. Known gap: two devices both offline can
+  claim the same number; the bump only checks locally-known orders.
+- Tap tiles (renderTiles/setProductQty) are the primary order input. The tile IS
+  the qty control for that product; setProductQty is the single reconciliation
+  point into draft.items. qty 0 removes the line.
+- openOrders{} tracks order-card expansion OUTSIDE the DOM - renderAll() rebuilds
+  the list on every Firebase sync, so DOM-only state would snap shut mid-tap.
+- QuickBooks: buildQbCsv() emits one row per line item, InvoiceNo repeated for
+  multi-line invoices. Discount is its own negative row so totals reconcile to
+  calc(). HST is NOT a line - Taxable=Y/TaxCode=H is left for QBO tax mapping.
+  Column headers may need tweaking to match the office's QBO import template.
+- Logo is app-only (header). LOGO_MARK is a base64 PNG const. Print/invoice
+  headers intentionally do NOT use it - owner asked for app-only.
+- Cookie background pattern is an inline SVG data URI in --cookie-pattern.
+
+## Scaling limits (known, not yet addressed)
+- localStorage caps ~5MB; ~1-1.5KB per order => hard ceiling ~3,500-4,000 orders,
+  and it fails SILENTLY when full. Whole state syncs on every change, so Firebase
+  transfer grows with history. Comfortable to ~500 orders; needs a yearly archive
+  past that.
