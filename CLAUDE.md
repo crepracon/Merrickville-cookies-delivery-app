@@ -154,3 +154,33 @@ Fonts only from Google Fonts CDN. Deployed via GitHub Pages.
   and it fails SILENTLY when full. Whole state syncs on every change, so Firebase
   transfer grows with history. Comfortable to ~500 orders; needs a yearly archive
   past that.
+
+## v2.1.0 - delivery tiles, Phomemo removal, Store #, delete guard
+- Delivery stop now uses the SAME .tile / .tile-grid components as the New Order
+  tab. Two grids per stop: drop-offs (one tile per order line, data-dq/data-dqi)
+  and pick-ups (one tile per catalog product, data-puq/data-pupid/data-puqi).
+  The pickup dropdown and the "+ Add pickup" button are GONE.
+- setPickupQty(o, pid, q) is the single reconciliation point for pickups, mirroring
+  setProductQty() on the order side. qty 0 removes the pickup entry entirely.
+  Pickups are still stored as an array of {id, productId, desc, qty} - the tiles
+  key off productId, so at most one entry per product.
+- LANDMINE: pickups saved before v2.1 may have a productId that no longer exists
+  (or none at all). Those are rendered as "older entry" d-rows below the tiles,
+  keyed by data-puid/data-puqid, so the data is never silently dropped. Do not
+  delete that orphan branch.
+- PHOMEMO SUPPORT REMOVED at owner's request (they're sourcing a different mobile
+  printer). Removed: all UI buttons, sharePhomemo/sharePhomemoInvoice,
+  receiptCanvas/invoiceCanvas/shareCanvasPng/drawCookieLogo (~233 lines).
+  KEPT: receiptText() and shareReceipt() - those are generic text sharing, not
+  printer-specific. If a thermal printer is chosen later, the canvas rendering
+  code is recoverable from git tag v2.0.1.
+- The rotated half-sheet receipt print (@media print .receipt-half) is still in
+  place and still works. Revisit once a new printer is chosen.
+- customer.store is an OPTIONAL free-text store number. Surfaced on: driver stop
+  head (pill), orders list meta, invoice "Bill to", delivery receipt, order search,
+  and the QuickBooks CSV (StoreNo column). Legacy orders have no .store - always
+  guard with `o.customer.store ? ... : ''`.
+- Product delete now takes TWO presses on the same X (armedDel + 4s auto-disarm).
+  The button is mutated in place rather than re-rendered so half-typed prices
+  aren't lost. renderProducts() clears armedDel because it rebuilds the DOM.
+  The old inline Remove/Keep confirm row is gone.
