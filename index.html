@@ -217,7 +217,7 @@ section[data-tab].active{display:block}
 .inline-confirm{display:flex; gap:6px; align-items:center; font-size:13px; font-weight:600; color:var(--red)}
 
 /* ---------- driver stop ---------- */
-.sec-lbl{font-weight:700; text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px}
+.sec-lbl{font-size:15px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--ink); margin-bottom:8px}
 .stop{border:1px solid var(--line); border-radius:12px; background:var(--surface); margin-bottom:14px; overflow:hidden}
 .stop .stop-head{padding:12px 14px; background:var(--surface2); border-bottom:1px solid var(--line)}
 .stop .stop-body{padding:12px 14px}
@@ -1337,7 +1337,7 @@ function stopCard(o) {
 
   // drop-offs: same tile layout as the New Order tab so the driver's thumbs
   // learn one control, not two. Each tile is one line on the order.
-  h += '<div class="small sec-lbl">Dropped off</div>';
+  h += '<div class="sec-lbl">Dropped off</div>';
   h += '<div class="tile-grid">';
   o.items.forEach(function (it) {
     var dq = (o.delivery.qty[it.lineId] === undefined) ? it.qty : o.delivery.qty[it.lineId];
@@ -1354,7 +1354,7 @@ function stopCard(o) {
 
   // pick-ups: tiles over the whole catalog, all starting at 0. No dropdown,
   // no "add pickup" step - the driver just taps the thing he took back.
-  h += '<div class="small sec-lbl" style="margin-top:12px">Picked up</div>';
+  h += '<div class="sec-lbl" style="margin-top:16px">Picked up</div>';
   h += '<div class="tile-grid">';
   state.products.list.forEach(function (p) {
     if (!p.name) return;
@@ -1384,7 +1384,7 @@ function stopCard(o) {
   });
 
   // payment
-  h += '<div class="small" style="font-weight:700; text-transform:uppercase; letter-spacing:.05em; margin-top:14px">Payment at door &middot; total ' + money(c.total) + '</div>' +
+  h += '<div class="sec-lbl" style="margin-top:18px">Payment at door &middot; total ' + money(c.total) + '</div>' +
     '<div class="seg" data-payseg="1">' +
     ['Prepaid', 'Cash', 'E-transfer'].map(function (m) {
       return '<button data-pm="' + m + '"' + (o.delivery.method === m ? ' class="on"' : '') + '>' + m + '</button>';
