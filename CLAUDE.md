@@ -184,3 +184,21 @@ Fonts only from Google Fonts CDN. Deployed via GitHub Pages.
   The button is mutated in place rather than re-rendered so half-typed prices
   aren't lost. renderProducts() clears armedDel because it rebuilds the DOM.
   The old inline Remove/Keep confirm row is gone.
+
+## v2.1.1 - delivery heading sizes
+- .sec-lbl is now 15px / ink-coloured. The three delivery stop headings
+  (Dropped off, Picked up, Payment at door) all share it. They previously
+  carried class="small" which capped them at 12.5px muted - if headings ever
+  look shrunken again, check for a stray .small on them.
+
+## Deploy landmine: stuck Pages builds
+- Pages builds run ON Actions. When Actions has an incident, the Pages build can
+  hang in "building" forever (duration 0ms) and the deploy step is skipped, so
+  main is correct but the live site is stale. Re-running the workflow does NOT
+  clear a zombie build. Push a new commit to force a fresh build.
+- The token cannot POST /pages/builds (403, lacks Pages write scope), so a new
+  commit is the only programmatic way to retrigger.
+- NOT a real failure: pushing index.html and CLAUDE.md seconds apart queues two
+  builds; the first is superseded and reported as "errored" with duration 0ms
+  while the second succeeds. Those failure emails are expected noise. A build
+  that runs for tens of seconds THEN fails is a real one.
